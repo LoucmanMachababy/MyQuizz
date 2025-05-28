@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Toutes les questions{% endblock %}
+
+{% block body %}
+    <h1>Liste complète des quiz</h1>
+
+    {% for categorie in categories %}
+        <h2>Catégorie : {{ categorie.nom }}</h2>
+
+        {% set questions = categorie.questions %}
+        {% if questions is not empty %}
+            {% for question in questions %}
+                <div style="margin-bottom: 1em;">
+                    <strong>{{ loop.index }}. {{ question.question }}</strong>
+                    <ul>
+                        {% for reponse in question.reponses %}
+                            <input type="radio">
+                                {{ reponse.reponse }}
+                                {% if reponse.estCorrecte %}✅{% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>Aucune question dans cette catégorie.</p>
+        {% endif %}
+    {% endfor %}
+{% endblock %}
