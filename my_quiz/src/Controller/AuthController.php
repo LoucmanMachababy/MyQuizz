@@ -23,6 +23,16 @@ class AuthController extends AbstractController
                 return new Response('Email ou mdp incorrect.', 400);
             }
 
+            $user = new User();
+            $user->setEmail($email);
+            $user->setPassword(password_hash($password, PASSWORD_BCRYPT)); //bcrypt pr haser le mdp
 
+            $em->persist($user);
+            $em->flush();
+
+            return new Response('Vous etes inscris');
+        }
+
+       
     }
 }
