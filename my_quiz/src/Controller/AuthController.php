@@ -18,6 +18,11 @@ class AuthController extends AbstractController
             $email = $request->request->get('email');
             $password = $request->request->get('password');
 
-   
+            // gestion derreur
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 6) {
+                return new Response('Email ou mdp incorrect.', 400);
+            }
+
+
     }
 }
