@@ -33,6 +33,6 @@ class AuthController extends AbstractController
             return new Response('Vous etes inscris');
         }
 
-       
+        return $this->render('auth/register.html.twig');
     }
 }
