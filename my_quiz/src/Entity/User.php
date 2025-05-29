@@ -4,32 +4,22 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
- * @ORM\Table(name="user")
- */
+#[ORM\Entity(repositoryClass: "App\Repository\UserRepository")]
+#[ORM\Table(name: "user")]
 class User
 {
-    /**
-     * @ORM\Id
-     * @ORM\Column(type="integer")
-     * @ORM\GeneratedValue
-     */
+    #[ORM\Id]
+    #[ORM\Column(type: "integer")]
+    #[ORM\GeneratedValue]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, unique=true)
-     */
+    #[ORM\Column(type: "string", length: 255, unique: true)]
     private $email;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $password;
 
-    /**
-     * @ORM\Column(type="boolean", name="email_confirmed")
-     */
+    #[ORM\Column(type: "boolean", name: "email_confirmed")]
     private $emailConfirmed = false;
 
     public function getId(): ?int
