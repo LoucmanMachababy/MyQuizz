@@ -80,5 +80,7 @@ class AuthController extends AbstractController
             return new Response("erreur de lien", 400);
         }
 
+        $user = $em->getRepository(User::class)->find($id);
+
        
 }
