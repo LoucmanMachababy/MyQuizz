@@ -18,21 +18,25 @@ class AuthController extends AbstractController
             $email = $request->request->get('email');
             $password = $request->request->get('password');
 
-            // gestion derreur
+            // gestion d'erreur
             if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 6) {
                 return new Response('Email ou mdp incorrect.', 400);
             }
 
             $user = new User();
             $user->setEmail($email);
-            $user->setPassword(password_hash($password, PASSWORD_BCRYPT)); //bcrypt pr haser le mdp
+            $user->setPassword(password_hash($password, PASSWORD_BCRYPT));
 
             $em->persist($user);
             $em->flush();
 
-            return new Response('Vous etes inscris');
+            return new Response('Vous êtes inscrit');
         }
 
         return $this->render('auth/register.html.twig');
     }
-}
+
+    #[Route('/login', name: 'app_login')]
+    public function login(Request $request, EntityManagerInterface $em): Response
+    {
+
