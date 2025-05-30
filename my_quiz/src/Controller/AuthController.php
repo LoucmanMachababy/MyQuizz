@@ -91,4 +91,9 @@ class AuthController extends AbstractController
 
         return new Response("Email confirmé: Vous pouvez vous connecté");
     }
+
+        #[Route('/logout', name: 'app_logout')]
+        public function logout(Request $request): Response
+{
+
 }
