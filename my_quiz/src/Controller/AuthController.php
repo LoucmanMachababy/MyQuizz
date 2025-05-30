@@ -76,4 +76,9 @@ class AuthController extends AbstractController
     {
         $id = $request->query->get('id');
 
+        if (!$id) {
+            return new Response("erreur de lien", 400);
+        }
 
+       
+}
