@@ -57,5 +57,12 @@ class AuthController extends AbstractController
                 ]);
             }
 
+            $session = $request->getSession();
+            $session->set('user_id', $user->getId());
 
+            return new Response('Connexion en cours !');
+        }
+
+        return $this->render('auth/login.html.twig');
+    }
 }
