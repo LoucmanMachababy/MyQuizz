@@ -45,5 +45,10 @@ class AuthController extends AbstractController
 
             $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
 
-    }
+            if (!$user || !password_verify($password, $user->getPassword())) {
+                return $this->render('auth/login.html.twig', [
+                    'error' => 'mdp ou mail incorrects',
+                ]);
+            }
+
 }
