@@ -34,7 +34,7 @@ class AuthController extends AbstractController
             $message = "Cliquez sur ce lien pour confirmer votre email : " . $link;
             mail($user->getEmail(), "Confirmation d'email", $message);
 
-            return new Response('Vous êtes inscrit. Vérifiez vos mails pour confirmer votre adresse.');
+            return new Response("Vous êtes inscrit. Cliquez sur ce lien pour confirmer votre email : <a href='/confirm-email?id=" . $user->getId() . "'>Confirmer l'email</a>", 200);
         }
 
         return $this->render('auth/register.html.twig');
