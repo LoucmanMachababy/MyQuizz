@@ -82,5 +82,8 @@ class AuthController extends AbstractController
 
         $user = $em->getRepository(User::class)->find($id);
 
-       
+        if (!$user) {
+            return new Response("Utilisateur non trouvé", 404);
+        }
+
 }
