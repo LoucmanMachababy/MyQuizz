@@ -74,4 +74,6 @@ class AuthController extends AbstractController
     #[Route('/confirm-email', name: 'app_confirm_email')]
     public function confirmEmail(Request $request, EntityManagerInterface $em): Response
     {
-       
+        $id = $request->query->get('id');
+
+
