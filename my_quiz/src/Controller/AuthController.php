@@ -86,4 +86,9 @@ class AuthController extends AbstractController
             return new Response("Utilisateur non trouvé", 404);
         }
 
+        $user->setEmailConfirmed(true);
+        $em->flush();
+
+        return new Response("Email confirmé: Vous pouvez vous connecté");
+    }
 }
