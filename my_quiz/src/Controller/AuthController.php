@@ -98,7 +98,6 @@ class AuthController extends AbstractController
         $session = $request->getSession();
         $session->remove('user_id'); // supprime la session de luser
 
-        return $this->redirectToRoute('app_login');
-}
+        return $this->redirectToRoute('quiz_global');}
 
 }
