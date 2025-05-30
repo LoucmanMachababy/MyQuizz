@@ -51,4 +51,11 @@ class AuthController extends AbstractController
                 ]);
             }
 
+            if (!$user->isEmailConfirmed()) {
+                return $this->render('auth/login.html.twig', [
+                    'error' => 'Veuillez confirmer votre adresse email.',
+                ]);
+            }
+
+
 }
