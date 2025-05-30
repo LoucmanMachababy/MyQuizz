@@ -95,5 +95,10 @@ class AuthController extends AbstractController
         #[Route('/logout', name: 'app_logout')]
         public function logout(Request $request): Response
 {
+        $session = $request->getSession();
+        $session->remove('user_id'); // supprime la session de luser
+
+        return $this->redirectToRoute('app_login');
+}
 
 }
