@@ -18,7 +18,6 @@ class AuthController extends AbstractController
             $email = $request->request->get('email');
             $password = $request->request->get('password');
 
-            // gestion d'erreur
             if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 6) {
                 return new Response('Email ou mdp incorrect.', 400);
             }
@@ -30,7 +29,12 @@ class AuthController extends AbstractController
             $em->persist($user);
             $em->flush();
 
-            return new Response('Vous êtes inscrit');
+            // Génération du lien de confirmation (affiché dans la réponse ici)
+            $link = 'http://localhost:8000/confirm-email?id=' . $user->getId();
+            $message = "Cliquez sur ce lien pour confirmer votre email : " . $link;
+            mail($user->getEmail(), "Confirmation d'email", $message);
+
+            return new Response('Vous êtes inscrit. Vérifiez vos mails pour confirmer votre adresse.');
         }
 
         return $this->render('auth/register.html.twig');
@@ -65,4 +69,9 @@ class AuthController extends AbstractController
 
         return $this->render('auth/login.html.twig');
     }
-}
+
+    //lien mail pour verif
+    #[Route('/confirm-email', name: 'app_confirm_email')]
+    public function confirmEmail(Request $request, EntityManagerInterface $em): Response
+    {
+       
