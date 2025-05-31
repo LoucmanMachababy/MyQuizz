@@ -19,19 +19,7 @@ class QuizController extends AbstractController
         return $this->render('quiz.html.twig', [
             'categories' => $categories,
         ]);
+
+        
     }
-
-    #[Route('/quiz/{id}', name: 'quiz_categorie')]
-public function show(CategorieRepository $categorieRepo, int $id): Response
-{
-    $categorie = $categorieRepo->find($id);
-
-    if (!$categorie) {
-        throw $this->createNotFoundException('Catégorie introuvable');
-    }
-
-    return $this->render('quiz_categorie.html.twig', [
-        'categorie' => $categorie,
-    ]);
-}
 }

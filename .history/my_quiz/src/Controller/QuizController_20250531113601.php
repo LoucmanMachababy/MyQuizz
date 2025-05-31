@@ -11,16 +11,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class QuizController extends AbstractController
 {
-    #[Route('/quiz', name: 'quiz_global')]
-    public function index(CategorieRepository $categorieRepo): Response
-    {
-        $categories = $categorieRepo->findAll();
-
-        return $this->render('quiz.html.twig', [
-            'categories' => $categories,
-        ]);
-    }
-
     #[Route('/quiz/{id}', name: 'quiz_categorie')]
 public function show(CategorieRepository $categorieRepo, int $id): Response
 {
@@ -34,4 +24,5 @@ public function show(CategorieRepository $categorieRepo, int $id): Response
         'categorie' => $categorie,
     ]);
 }
+
 }

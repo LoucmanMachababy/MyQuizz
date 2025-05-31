@@ -1,0 +1,27 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Quiz - {{ categorie.nom }}{% endblock %}
+
+{% block body %}
+    <h1>Catégorie : {{ categorie.nom }}</h1>
+
+    {% if categorie.questions is not empty %}
+        {% for question in categorie.questions %}
+            <div style="margin-bottom: 1em;">
+                <strong>{{ loop.index }}. {{ question.question }}</strong>
+                <ul>
+                    {% for reponse in question.reponses %}
+                        <li>
+                            {{ reponse.reponse }}
+                            {% if reponse.estCorrecte %}✅{% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>Aucune question dans cette catégorie.</p>
+    {% endif %}
+
+    <a href="{{ path('quiz_global') }}">⬅ Retour aux catégories</a>
+{% endblock %}
