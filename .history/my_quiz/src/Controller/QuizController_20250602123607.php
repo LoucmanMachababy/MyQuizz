@@ -51,4 +51,5 @@ public function quizCategorie(Categorie $categorie, Request $request, SessionInt
         'total' => count($questions),
     ]);
 }
+
 }
