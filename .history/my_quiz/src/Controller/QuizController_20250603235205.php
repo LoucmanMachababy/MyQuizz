@@ -29,37 +29,7 @@ class QuizController extends AbstractController
         $currentIndex = $session->get('quiz_index_' . $categorie->getId(), 0);
         $userAnswers = $session->get('quiz_answers_' . $categorie->getId(), []);
 
-        if ($request->isMethod('POST')) {
-            $userReponseId = $request->request->get('reponse_id');
-            if ($userReponseId !== null) {
-                $question = $questions[$currentIndex];
-                $reponse = null;
-
-                foreach ($question->getReponses() as $r) {
-                    if ($r->getId() == $userReponseId) {
-                        $reponse = $r;
-                        break;
-                    }
-                }
-
-                if ($reponse) {
-
-                    $userAnswers = $session->get('quiz_answers_' . $categorie->getId(), []);
-
-                    $userAnswers[$question->getId()] = [
-                        'question' => $question,
-                        'user_reponse' => $reponse,
-                        'correcte' => $reponse->isEstCorrecte()
-                    ];
-                    $session->set('quiz_answers_' . $categorie->getId(), $userAnswers);
-                }
-            }
-
-            $currentIndex++;
-            $session->set('quiz_index_' . $categorie->getId(), $currentIndex);
-
-            return $this->redirectToRoute('quiz_categorie', ['id' => $categorie->getId()]);
-        }
+        
 
         if ($currentIndex >= count($questions)) {
             $session->remove('quiz_index_' . $categorie->getId());
@@ -89,6 +59,3 @@ class QuizController extends AbstractController
         ]);
     }
 }
-
-
-

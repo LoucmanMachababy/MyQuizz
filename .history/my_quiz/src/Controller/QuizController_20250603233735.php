@@ -29,6 +29,7 @@ class QuizController extends AbstractController
         $currentIndex = $session->get('quiz_index_' . $categorie->getId(), 0);
         $userAnswers = $session->get('quiz_answers_' . $categorie->getId(), []);
 
+        // Traitement de la réponse de l'utilisateur
         if ($request->isMethod('POST')) {
             $userReponseId = $request->request->get('reponse_id');
             if ($userReponseId !== null) {
@@ -43,10 +44,7 @@ class QuizController extends AbstractController
                 }
 
                 if ($reponse) {
-
-                    $userAnswers = $session->get('quiz_answers_' . $categorie->getId(), []);
-
-                    $userAnswers[$question->getId()] = [
+                    $userAnswers[] = [
                         'question' => $question,
                         'user_reponse' => $reponse,
                         'correcte' => $reponse->isEstCorrecte()
@@ -61,6 +59,7 @@ class QuizController extends AbstractController
             return $this->redirectToRoute('quiz_categorie', ['id' => $categorie->getId()]);
         }
 
+        // Fin du quiz
         if ($currentIndex >= count($questions)) {
             $session->remove('quiz_index_' . $categorie->getId());
             $answers = $session->get('quiz_answers_' . $categorie->getId(), []);
@@ -79,6 +78,7 @@ class QuizController extends AbstractController
             ]);
         }
 
+        // Affichage de la question actuelle
         $question = $questions[$currentIndex];
 
         return $this->render('quiz/question.html.twig', [
@@ -89,6 +89,3 @@ class QuizController extends AbstractController
         ]);
     }
 }
-
-
-

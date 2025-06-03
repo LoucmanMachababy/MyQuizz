@@ -46,7 +46,7 @@ class QuizController extends AbstractController
 
                     $userAnswers = $session->get('quiz_answers_' . $categorie->getId(), []);
 
-                    $userAnswers[$question->getId()] = [
+                    
                         'question' => $question,
                         'user_reponse' => $reponse,
                         'correcte' => $reponse->isEstCorrecte()

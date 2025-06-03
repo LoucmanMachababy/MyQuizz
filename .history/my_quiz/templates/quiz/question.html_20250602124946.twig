@@ -1,22 +1,26 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Quiz - {{ categorie.nom }} - Question {{ index }} / {{ total }}{% endblock %}
+{% block title %}Quiz - {{ categorie.nom }}{% endblock %}
 
 {% block body %}
-    <div style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div style="display: flex; justify-content: center; align-items: center; height: 70vh;">
         <div style="background-color: #9b6ef3; color: white; padding: 2em; border-radius: 15px; max-width: 600px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-            <h2>{{ question.question }}</h2>
+            <h2>{{ index }}. {{ question.question }}</h2>
             <p style="margin-top: 0.5em; font-size: 0.9em;">
-                Question {{ index }} / {{ total }}
-            </p>
+    Question {{ index }} / {{ total }}
+</p>
 
-            <form method="POST" action="{{ path('quiz_categorie', {id: categorie.id}) }}">
+
+            <form method="post">
                 <ul style="list-style: none; padding: 0; text-align: left;">
                     {% for reponse in question.reponses %}
                         <li style="margin-bottom: 1em;">
                             <label style="cursor: pointer; display: flex; align-items: center;">
-                                <input type="radio" name="reponse_id" value="{{ reponse.id }}" required style="margin-right: 0.5em;">
+                                <input type="radio" name="reponse" value="{{ reponse.id }}" required style="margin-right: 0.5em;">
                                 <span>{{ reponse.reponse }}</span>
+                                {% if reponse.estCorrecte %}
+                                    <span style="margin-left: 0.5em; color: #4cd137;">✅</span>
+                                {% endif %}
                             </label>
                         </li>
                     {% endfor %}

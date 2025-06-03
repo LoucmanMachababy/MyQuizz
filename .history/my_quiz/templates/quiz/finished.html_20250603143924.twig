@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Quiz terminé{% endblock %}
+
+{% block body %}
+    <div style="display: flex; flex-direction: column; justify-content: center; align-items: center; height: 70vh; gap: 1.5em;">
+        <div style="background-color: #9b6ef3; color: white; padding: 2em; border-radius: 15px; max-width: 600px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+            <h2>🎉 Tu as terminé le quiz sur "{{ categorie.nom }}" !</h2>
+                <button type="submit" style="margin-top: 1.5em; background: white; color: #6c5ce7; padding: 0.7em 1.5em; border: none; border-radius: 8px; cursor: pointer;">
+                    Résultats du quizz
+                </button>
+                Score {{ index }} / {{ total }}
+                {#
+                {% if not reponse.estCorrecte %}
+                    <span>{{ reponse.reponse }}</span>
+                    <span style="margin-left: 0.5em; color: #red;">❌</span>
+                {% endif %}
+                #}
+            <a href="{{ path('quiz_categorie', { id: categorie.id }) }}" style="color: white; display: block; margin-top: 1em;">
+                🔁 Recommencer ce quiz
+            </a>
+        </div>
+
+        <a href="{{ path('quiz_global') }}" style="color: #6c5ce7;" text-align: center;">
+            ⬅ Retour aux catégories
+        </a>
+    </div>
+{% endblock %}

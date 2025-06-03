@@ -43,12 +43,9 @@ class QuizController extends AbstractController
                 }
 
                 if ($reponse) {
-
-                    $userAnswers = $session->get('quiz_answers_' . $categorie->getId(), []);
-
-                    $userAnswers[$question->getId()] = [
+                    $userAnswers[] = [
                         'question' => $question,
-                        'user_reponse' => $reponse,
+                        'reponse' => $reponse,
                         'correcte' => $reponse->isEstCorrecte()
                     ];
                     $session->set('quiz_answers_' . $categorie->getId(), $userAnswers);
@@ -79,6 +76,7 @@ class QuizController extends AbstractController
             ]);
         }
 
+        // Affichage de la question actuelle
         $question = $questions[$currentIndex];
 
         return $this->render('quiz/question.html.twig', [
@@ -89,6 +87,3 @@ class QuizController extends AbstractController
         ]);
     }
 }
-
-
-

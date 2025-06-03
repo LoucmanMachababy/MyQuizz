@@ -1,0 +1,112 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Categorie;
+use App\Entity\Question;
+use App\Entity\Reponse;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
+
+class QuizController extends AbstractController
+{
+
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)  // <-- constructeur
+    {
+        $this->entityManager = $entityManager;
+    }
+
+    #[Route('/quiz', name: 'quiz_global')]
+    public function index(\App\Repository\CategorieRepository $categorieRepo)
+    {
+        $categories = $categorieRepo->findAll();
+
+        return $this->render('quiz.html.twig', [
+            'categories' => $categories,
+        ]);
+    }
+
+    #[Route('/quiz/{id}', name: 'quiz_categorie')]
+public function quizCategorie(Categorie $categorie, Request $request, SessionInterface $session)
+{
+    $questions = $categorie->getQuestions()->getValues();
+    $currentIndex = $session->get('quiz_index_' . $categorie->getId(), 0);
+    $userAnswers = $session->get('quiz_answers_' . $categorie->getId(), []);
+
+    if ($request->isMethod('POST')) {
+        $userReponseId = $request->request->get('reponse_id');
+        if ($userReponseId !== null && isset($questions[$currentIndex])) {
+            $question = $questions[$currentIndex];
+            $reponse = null;
+
+            foreach ($question->getReponses() as $r) {
+                if ($r->getId() == $userReponseId) {
+                    $reponse = $r;
+                    break;
+                }
+            }
+
+            if ($reponse) {
+                $userAnswers[] = [
+                    'question_id' => $question->getId(),
+                    'user_reponse_id' => $reponse->getId(),
+                    'correcte' => $reponse->isEstCorrecte(),
+                ];
+                $session->set('quiz_answers_' . $categorie->getId(), $userAnswers);
+            }
+        }
+
+        $currentIndex++;
+        $session->set('quiz_index_' . $categorie->getId(), $currentIndex);
+
+        return $this->redirectToRoute('quiz_categorie', ['id' => $categorie->getId()]);
+    }
+
+    if ($currentIndex >= count($questions)) {
+        $session->remove('quiz_index_' . $categorie->getId());
+
+        $answers = $session->get('quiz_answers_' . $categorie->getId(), []);
+        $score = 0;
+
+        $questionsRepo = $this->entityManager->getRepository(Question::class);
+        $reponsesRepo = $this->entityManager->getRepository(Reponse::class);   
+
+        $answersDetailed = [];
+        foreach ($answers as $answer) {
+            $question = $questionsRepo->find($answer['question_id']);
+            $userReponse = $reponsesRepo->find($answer['user_reponse_id']);
+            if ($question && $userReponse) {
+                $answersDetailed[] = [
+                    'question' => $question,
+                    'user_reponse' => $userReponse,
+                    'correcte' => $answer['correcte'],
+                ];
+                if ($answer['correcte']) {
+                    $score++;
+                }
+            }
+        }
+
+        return $this->render('quiz/finished.html.twig', [
+            'categorie' => $categorie,
+            'answers' => $answersDetailed,
+            'score' => $score,
+            'total' => count($questions),
+        ]);
+    }
+
+    $question = $questions[$currentIndex];
+
+    return $this->render('quiz/question.html.twig', [
+        'categorie' => $categorie,
+        'question' => $question,
+        'index' => $currentIndex + 1,
+        'total' => count($questions),
+    ]);
+}
+}

@@ -10,9 +10,12 @@
 
         <hr style="margin: 1.5em 0; border-color: white;">
 
+                {{ dump(answers) }}
+
+
         {% for item in answers %}
             <div style="margin-bottom: 1em; text-align: left;">
-                <strong>Question :</strong> {{ item.question.question }}<br>
+                <strong>Question :</strong> {{ item.question.intitule }}<br>
                 <strong>Ta réponse :</strong> {{ item.user_reponse.reponse }}
                 {% if item.correcte %}
                     <span style="color: #2ecc71;">✅</span>

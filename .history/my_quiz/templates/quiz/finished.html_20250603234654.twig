@@ -12,8 +12,8 @@
 
         {% for item in answers %}
             <div style="margin-bottom: 1em; text-align: left;">
-                <strong>Question :</strong> {{ item.question.question }}<br>
-                <strong>Ta réponse :</strong> {{ item.user_reponse.reponse }}
+                <strong>Question :</strong> {{ item.question.intitule }}<br>
+                <strong>Ta réponse :</strong> {{ item.user_reponse.getReponse() }}
                 {% if item.correcte %}
                     <span style="color: #2ecc71;">✅</span>
                 {% else %}
@@ -21,7 +21,7 @@
                     <br><strong>Bonne(s) réponse(s) :</strong>
                     {% for r in item.question.reponses %}
                         {% if r.estCorrecte %}
-                            <div style="margin-left: 1em;">→ {{ r.reponse }}</div>
+                            <div style="margin-left: 1em;">→ {{ r.getReponse() }}</div>
                         {% endif %}
                     {% endfor %}
                 {% endif %}

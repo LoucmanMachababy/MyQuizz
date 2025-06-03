@@ -34,50 +34,33 @@ class QuizController extends AbstractController
             if ($userReponseId !== null) {
                 $question = $questions[$currentIndex];
                 $reponse = null;
-
+        
                 foreach ($question->getReponses() as $r) {
                     if ($r->getId() == $userReponseId) {
                         $reponse = $r;
                         break;
                     }
                 }
-
+        
                 if ($reponse) {
-
-                    $userAnswers = $session->get('quiz_answers_' . $categorie->getId(), []);
-
-                    $userAnswers[$question->getId()] = [
+                    $userAnswers[] = [
                         'question' => $question,
                         'user_reponse' => $reponse,
                         'correcte' => $reponse->isEstCorrecte()
                     ];
                     $session->set('quiz_answers_' . $categorie->getId(), $userAnswers);
+        
+                    dump($userAnswers); 
                 }
             }
-
+        
             $currentIndex++;
             $session->set('quiz_index_' . $categorie->getId(), $currentIndex);
-
+        
             return $this->redirectToRoute('quiz_categorie', ['id' => $categorie->getId()]);
-        }
+        }        
 
-        if ($currentIndex >= count($questions)) {
-            $session->remove('quiz_index_' . $categorie->getId());
-            $answers = $session->get('quiz_answers_' . $categorie->getId(), []);
-            $score = 0;
-            foreach ($answers as $answer) {
-                if ($answer['correcte']) {
-                    $score++;
-                }
-            }
-
-            return $this->render('quiz/finished.html.twig', [
-                'categorie' => $categorie,
-                'answers' => $answers,
-                'score' => $score,
-                'total' => count($questions),
-            ]);
-        }
+        
 
         $question = $questions[$currentIndex];
 
@@ -89,6 +72,3 @@ class QuizController extends AbstractController
         ]);
     }
 }
-
-
-

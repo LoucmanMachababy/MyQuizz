@@ -43,10 +43,7 @@ class QuizController extends AbstractController
                 }
 
                 if ($reponse) {
-
-                    $userAnswers = $session->get('quiz_answers_' . $categorie->getId(), []);
-
-                    $userAnswers[$question->getId()] = [
+                    $userAnswers[] = [
                         'question' => $question,
                         'user_reponse' => $reponse,
                         'correcte' => $reponse->isEstCorrecte()
@@ -89,6 +86,3 @@ class QuizController extends AbstractController
         ]);
     }
 }
-
-
-
