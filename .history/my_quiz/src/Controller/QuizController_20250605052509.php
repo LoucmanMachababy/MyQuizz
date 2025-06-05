@@ -71,8 +71,6 @@ class QuizController extends AbstractController
                 }
             }
 
-            $session->remove('quiz_answers_' . $categorie->getId());
-
             return $this->render('quiz/finished.html.twig', [
                 'categorie' => $categorie,
                 'answers' => $answers,
