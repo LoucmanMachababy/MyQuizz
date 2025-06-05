@@ -18,7 +18,7 @@
                     <span style="color: #2ecc71;">✅</span>
                 {% else %}
                     <span style="color: #e74c3c;">❌</span>
-                    <br><strong>Bonne(s) réponse(s) :</strong>
+                    <br><strong>Bonne réponse :</strong>
                     {% for r in item.question.reponses %}
                         {% if r.estCorrecte %}
                             <div style="margin-left: 1em;">→ {{ r.reponse }}</div>

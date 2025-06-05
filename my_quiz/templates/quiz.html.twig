@@ -5,6 +5,11 @@
 {% block body %}
     <h1>Liste des quiz</h1>
 
+    <p>
+        <a href="{{ path('quiz_history') }}">🕘 Voir l'historique</a>
+    </p>
+
+
     <ul>
         {% for categorie in categories %}
             <li>

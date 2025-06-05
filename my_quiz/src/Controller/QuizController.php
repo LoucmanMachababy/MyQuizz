@@ -12,6 +12,16 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class QuizController extends AbstractController
 {
+    #[Route('/quiz/history', name: 'quiz_history')]
+    public function history(SessionInterface $session)
+    {
+        $history = $session->get('quiz_history', []);
+    
+        return $this->render('quiz/history.html.twig', [
+            'history' => $history
+        ]);
+    }    
+
     #[Route('/quiz', name: 'quiz_global')]
     public function index(\App\Repository\CategorieRepository $categorieRepo)
     {
@@ -71,7 +81,18 @@ class QuizController extends AbstractController
                 }
             }
 
-            $session->remove('quiz_answers_' . $categorie->getId());
+        $session->remove('quiz_answers_' . $categorie->getId());
+
+        $history = $session->get('quiz_history', []);
+        $history[] = [
+        'categorie' => $categorie->getNom(), 
+        'score' => $score,
+        'total' => count($questions),
+        'date' => (new \DateTime('now', new \DateTimeZone('Europe/Paris')))->format('Y-m-d H:i:s'),
+        ];
+
+        $session->set('quiz_history', $history);
+
 
             return $this->render('quiz/finished.html.twig', [
                 'categorie' => $categorie,
@@ -79,6 +100,7 @@ class QuizController extends AbstractController
                 'score' => $score,
                 'total' => count($questions),
             ]);
+
         }
 
         $question = $questions[$currentIndex];

@@ -1,0 +1,25 @@
+{# templates/quiz/history.html.twig #}
+<h1>Historique des Quiz</h1>
+
+{% if history is empty %}
+    <p>Aucun quiz effectué pour le moment.</p>
+{% else %}
+    <table>
+        <thead>
+            <tr>
+                <th>Catégorie</th>
+                <th>Score</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in history %}
+                <tr>
+                    <td>{{ item.categorie }}</td>
+                    <td>{{ item.score }}/{{ item.total }}</td>
+                    <td>{{ item.date }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endif %}
