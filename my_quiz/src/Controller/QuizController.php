@@ -25,6 +25,12 @@ class QuizController extends AbstractController
     #[Route('/quiz', name: 'quiz_global')]
     public function index(\App\Repository\CategorieRepository $categorieRepo)
     {
+        $session = $request->getSession();
+
+        if (!$session->has('user_id')) {
+            return $this->redirectToRoute('app_login');
+        }
+
         $categories = $categorieRepo->findAll();
 
         return $this->render('quiz.html.twig', [
