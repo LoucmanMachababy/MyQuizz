@@ -8,6 +8,11 @@ use App\Entity\Reponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+<<<<<<< HEAD
+=======
+use Symfony\Component\HttpFoundation\Request; // ✅ IMPORT MANQUANT
+use Symfony\Component\HttpFoundation\Response;
+>>>>>>> origin/LoginRegister
 use Symfony\Component\Routing\Annotation\Route;
 
 class QuizController extends AbstractController
@@ -23,13 +28,17 @@ class QuizController extends AbstractController
     }    
 
     #[Route('/quiz', name: 'quiz_global')]
-    public function index(Request $request, \App\Repository\CategorieRepository $categorieRepo)
+<<<<<<< HEAD
+    public function index(\App\Repository\CategorieRepository $categorieRepo)
+=======
+    public function index(CategorieRepository $categorieRepo, Request $request): Response
+>>>>>>> origin/LoginRegister
     {
-        # $session = $request->getSession(); #}
+        $session = $request->getSession();
 
-        # if (!$session->has('user_id')) {
-           # return $this->redirectToRoute('app_login');
-        # } 
+        if (!$session->has('user_id')) {
+            return $this->redirectToRoute('app_login');
+        }
 
         $categories = $categorieRepo->findAll();
 

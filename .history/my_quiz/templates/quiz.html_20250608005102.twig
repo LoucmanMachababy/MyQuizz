@@ -1,0 +1,52 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Toutes les catégories{% endblock %}
+
+{% block body %}
+<<<<<<< HEAD
+    <h1>Liste des quiz</h1>
+
+    <p>
+        <a href="{{ path('quiz_history') }}">🕘 Voir l'historique</a>
+    </p>
+
+
+    <ul>
+        {% for categorie in categories %}
+            <li>
+                <a href="{{ path('quiz_categorie', { id: categorie.id }) }}">
+                    {{ categorie.nom }}
+                </a>
+            </li>
+=======
+    {% if app.session.get('user_id') %}
+        <p>Bienvenue ! <a href="{{ path('app_logout') }}">Se déconnecter</a></p>
+    {% endif %}
+
+    <h1>Liste complète des quiz</h1>
+
+    {% for categorie in categories %}
+        <a href="#"><h2>Catégorie : {{ categorie.nom }}</h2></a>
+
+        {% set questions = categorie.questions %}
+        {% if questions is not empty %}
+            {% for question in questions %}
+                <div style="margin-bottom: 1em;">
+                    <strong>{{ loop.index }}. {{ question.question }}</strong>
+                    <ul>
+                        {% for reponse in question.reponses %}
+                            <input type="radio" name="reponse_{{ question.id }}" id="reponse_{{ reponse.id }}" required>
+                            <label for="reponse_{{ reponse.id }}">{{ reponse.reponse }}</label>
+                            {% if reponse.estCorrecte %}✅{% endif %}
+                            <br>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endfor %}
+            <input type="submit" value="Résultats">
+>>>>>>> origin/LoginRegister
+        {% else %}
+            <li>Aucune catégorie disponible.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

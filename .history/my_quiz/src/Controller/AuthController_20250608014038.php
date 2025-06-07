@@ -67,7 +67,11 @@ class AuthController extends AbstractController
         $user->setConfirmationToken(null);
         $em->flush();
 
-        return new Response('Email confirmé, vous pouvez maintenant vous connecter.');
+        return $this->render('auth/confirmation.html.twig', [
+            'message' => 'Email confirmé, vous pouvez maintenant vous connecter.',
+            'redirect_url' => $this->generateUrl('quiz_global'), 
+            'delay' => 3 
+        ]);
     }
 
     #[Route('/login', name: 'app_login')]

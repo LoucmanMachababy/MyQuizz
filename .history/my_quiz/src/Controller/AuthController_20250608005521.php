@@ -94,20 +94,11 @@ class AuthController extends AbstractController
             $session = $request->getSession();
             $session->set('user_id', $user->getId());
 
-            return $this->redirectToRoute('quiz_global');
+            return new Response('Connexion en cours !');
         }
 
         return $this->render('auth/login.html.twig', [
             'error' => null,
         ]);
-
     }
-
-    #[Route('/logout', name: 'app_logout')]
-public function logout(Request $request): Response
-{
-    $session = $request->getSession();
-    $session->invalidate(); 
-    return $this->redirectToRoute('app_login'); 
-}
 }

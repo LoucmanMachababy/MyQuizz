@@ -94,7 +94,9 @@ class AuthController extends AbstractController
             $session = $request->getSession();
             $session->set('user_id', $user->getId());
 
-            return $this->redirectToRoute('quiz_global');
+            return $this->render('quiz.html.twig', [
+                'error' => 'Veuillez confirmer votre adresse email.',
+            ]);
         }
 
         return $this->render('auth/login.html.twig', [
@@ -104,10 +106,10 @@ class AuthController extends AbstractController
     }
 
     #[Route('/logout', name: 'app_logout')]
-public function logout(Request $request): Response
-{
-    $session = $request->getSession();
-    $session->invalidate(); 
-    return $this->redirectToRoute('app_login'); 
-}
+    public function logout(Request $request): Response
+    {
+        $session = $request->getSession();
+        $session->invalidate(); 
+        return $this->redirectToRoute('app_login'); 
+    }
 }

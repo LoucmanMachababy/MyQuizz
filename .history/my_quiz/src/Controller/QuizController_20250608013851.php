@@ -28,8 +28,8 @@ class QuizController extends AbstractController
         # $session = $request->getSession(); #}
 
         # if (!$session->has('user_id')) {
-           # return $this->redirectToRoute('app_login');
-        # } 
+            return $this->redirectToRoute('app_login');
+        } #}
 
         $categories = $categorieRepo->findAll();
 

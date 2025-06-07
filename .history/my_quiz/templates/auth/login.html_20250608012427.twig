@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html>
-<h1>Inscription</h1>
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion</title>
+</head>
+<body>
+
+<h1>Connexion</h1>
+
+{% if error %}
+    <p style="color:red">{{ error }}</p>
+{% endif %}
 
 <form method="POST">
     <label for="email">Email :</label>
@@ -9,8 +19,9 @@
     <label for="password">Mot de passe :</label>
     <input type="password" name="password" id="password" required><br><br>
 
-    <button type="submit">S'inscrire</button><br><br>
-         <a href="{{ path('app_login') }}">Se connecter</a>
+    <button type="submit">Se connecter</button><br><br>
+     <a href="{{ path('quiz_history') }}"></a>
 </form>
 
+</body>
 </html>

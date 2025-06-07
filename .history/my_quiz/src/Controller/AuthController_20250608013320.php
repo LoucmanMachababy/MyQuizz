@@ -104,10 +104,10 @@ class AuthController extends AbstractController
     }
 
     #[Route('/logout', name: 'app_logout')]
-public function logout(Request $request): Response
-{
-    $session = $request->getSession();
-    $session->invalidate(); 
-    return $this->redirectToRoute('app_login'); 
-}
+    public function logout(Request $request): Response
+    {
+        $session = $request->getSession();
+        $session->invalidate(); 
+        return $this->redirectToRoute('app_login'); 
+    }
 }

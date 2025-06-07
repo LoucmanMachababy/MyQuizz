@@ -23,13 +23,15 @@ class QuizController extends AbstractController
     }    
 
     #[Route('/quiz', name: 'quiz_global')]
-    public function index(Request $request, \App\Repository\CategorieRepository $categorieRepo)
-    {
-        # $session = $request->getSession(); #}
+<<<<<<< HEAD
+    public function index(\App\Repository\CategorieRepository $categorieRepo)
 
-        # if (!$session->has('user_id')) {
-           # return $this->redirectToRoute('app_login');
-        # } 
+    {
+        $session = $request->getSession();
+
+        if (!$session->has('user_id')) {
+            return $this->redirectToRoute('app_login');
+        }
 
         $categories = $categorieRepo->findAll();
 
