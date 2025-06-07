@@ -3,22 +3,19 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Mon Quiz{% endblock %}</title>
-        {# … tes CSS/JS … #}
     </head>
     <body>
         <nav>
-            {% if is_granted('IS_AUTHENTICATED_FULLY') %}
-                Bonjour {{ app.user.email }} |
+            {% set uid = app.request.getSession().get('user_id') %}
+            {% if uid %}
                 <a href="{{ path('quiz_global') }}">Quiz</a> |
-                <a href="{{ path('logout') }}">Déconnexion</a>
+                <a href="{{ path('app_logout') }}">Déconnexion</a>
             {% else %}
-                <a href="{{ path('login') }}">Connexion</a> |
-                <a href="{{ path('register') }}">Inscription</a>
+                <a href="{{ path('app_login') }}">Connexion</a> |
+                <a href="{{ path('app_register') }}">Inscription</a>
             {% endif %}
         </nav>
 
-        <main>
-            {% block body %}{% endblock %}
-        </main>
+        <main>{% block body %}{% endblock %}</main>
     </body>
 </html>

@@ -3,10 +3,14 @@
 {% block title %}Toutes les questions{% endblock %}
 
 {% block body %}
+    {% if app.session.get('user_id') %}
+        <p>Bienvenue ! <a href="{{ path('app_logout') }}">Se déconnecter</a></p>
+    {% endif %}
+
     <h1>Liste complète des quiz</h1>
 
     {% for categorie in categories %}
-       <a href="#"><h2>Catégorie : {{ categorie.nom }}</h2></a>
+        <a href="#"><h2>Catégorie : {{ categorie.nom }}</h2></a>
 
         {% set questions = categorie.questions %}
         {% if questions is not empty %}
@@ -15,10 +19,10 @@
                     <strong>{{ loop.index }}. {{ question.question }}</strong>
                     <ul>
                         {% for reponse in question.reponses %}
-                            <input type="radio" id="reponse" required>
-                                <label for="reponse">{{ reponse.reponse }}</label>
-                                {% if reponse.estCorrecte %}✅{% endif %}
-                                <br>
+                            <input type="radio" name="reponse_{{ question.id }}" id="reponse_{{ reponse.id }}" required>
+                            <label for="reponse_{{ reponse.id }}">{{ reponse.reponse }}</label>
+                            {% if reponse.estCorrecte %}✅{% endif %}
+                            <br>
                         {% endfor %}
                     </ul>
                 </div>

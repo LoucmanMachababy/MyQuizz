@@ -64,20 +64,24 @@ class AuthController extends AbstractController
             $session = $request->getSession();
             $session->set('user_id', $user->getId());
 
-            return new Response('Connexion en cours !');
+            // Redirection vers le quiz après connexion
+            return $this->redirectToRoute('quiz_global');
         }
 
-        return $this->render('auth/login.html.twig');
+        // Affichage du formulaire sans erreur
+        return $this->render('auth/login.html.twig', [
+            'error' => null
+        ]);
     }
 
-    //lien mail pour verif
+    // lien mail pour verif
     #[Route('/confirm-email', name: 'app_confirm_email')]
     public function confirmEmail(Request $request, EntityManagerInterface $em): Response
     {
         $id = $request->query->get('id');
 
         if (!$id) {
-            return new Response("erreur de lien", 400);
+            return new Response("Erreur de lien", 400);
         }
 
         $user = $em->getRepository(User::class)->find($id);
@@ -89,15 +93,15 @@ class AuthController extends AbstractController
         $user->setEmailConfirmed(true);
         $em->flush();
 
-        return new Response("Email confirmé: Vous pouvez vous connecté");
+        return new Response("Email confirmé : Vous pouvez vous connecter");
     }
 
-        #[Route('/logout', name: 'app_logout')]
-        public function logout(Request $request): Response
-{
+    #[Route('/logout', name: 'app_logout')]
+    public function logout(Request $request): Response
+    {
         $session = $request->getSession();
-        $session->remove('user_id'); // supprime la session de luser
+        $session->remove('user_id'); // Supprime la session de l'utilisateur
 
-        return $this->redirectToRoute('quiz_global');}
-
+        return $this->redirectToRoute('app_login');
+    }
 }

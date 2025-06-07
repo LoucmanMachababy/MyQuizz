@@ -68,6 +68,3 @@ when@test:
     access_control:
         # protège tout /quiz/**, besoin d’être ROLE_USER
         - { path: ^/quiz, roles: ROLE_USER }
-
-when@test:
-    # tes réglages de cost pour les tests…
