@@ -4,15 +4,18 @@ namespace App\Controller;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class AuthController extends AbstractController
 {
     #[Route('/register', name: 'app_register')]
-    public function register(Request $request, EntityManagerInterface $em): Response
+    public function register(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
         if ($request->isMethod('POST')) {
             $email = $request->request->get('email');
@@ -26,18 +29,45 @@ class AuthController extends AbstractController
             $user->setEmail($email);
             $user->setPassword(password_hash($password, PASSWORD_BCRYPT));
 
+            // Ajout de la vérification d’email
+            $token = bin2hex(random_bytes(32));
+            $user->setConfirmationToken($token);
+            $user->setEmailConfirmed(false);
+
             $em->persist($user);
             $em->flush();
 
-            // Génération du lien de confirmation (affiché dans la réponse ici)
-            $link = 'http://localhost:8000/confirm-email?id=' . $user->getId();
-            $message = "Cliquez sur ce lien pour confirmer votre email : " . $link;
-            mail($user->getEmail(), "Confirmation d'email", $message);
+            // Envoi de l’email de vérification
+            $url = $this->generateUrl('app_confirm_email', ['token' => $token], UrlGeneratorInterface::ABSOLUTE_URL);
 
-            return new Response("Vous êtes inscrit. Cliquez sur ce lien pour confirmer votre email : <a href='/confirm-email?id=" . $user->getId() . "'>Confirmer l'email</a>", 200);
+            $emailMessage = (new Email())
+                ->from('no-reply@myquizz.com')
+                ->to($email)
+                ->subject('Confirme ton email')
+                ->text("Clique ici pour confirmer ton email : $url");
+
+            $mailer->send($emailMessage);
+
+            return new Response('Vous êtes inscrit. Vérifiez votre email pour confirmer.');
         }
 
         return $this->render('auth/register.html.twig');
+    }
+
+    #[Route('/confirm/{token}', name: 'app_confirm_email')]
+    public function confirmEmail(string $token, EntityManagerInterface $em): Response
+    {
+        $user = $em->getRepository(User::class)->findOneBy(['confirmationToken' => $token]);
+
+        if (!$user) {
+            return new Response('Lien invalide.', 404);
+        }
+
+        $user->setEmailConfirmed(true);
+        $user->setConfirmationToken(null);
+        $em->flush();
+
+        return new Response('Email confirmé, vous pouvez maintenant vous connecter.');
     }
 
     #[Route('/login', name: 'app_login')]
@@ -64,44 +94,9 @@ class AuthController extends AbstractController
             $session = $request->getSession();
             $session->set('user_id', $user->getId());
 
-            // Redirection vers le quiz après connexion
-            return $this->redirectToRoute('quiz_global');
+            return new Response('Connexion en cours !');
         }
 
-        // Affichage du formulaire sans erreur
-        return $this->render('auth/login.html.twig', [
-            'error' => null
-        ]);
-    }
-
-    // lien mail pour verif
-    #[Route('/confirm-email', name: 'app_confirm_email')]
-    public function confirmEmail(Request $request, EntityManagerInterface $em): Response
-    {
-        $id = $request->query->get('id');
-
-        if (!$id) {
-            return new Response("Erreur de lien", 400);
-        }
-
-        $user = $em->getRepository(User::class)->find($id);
-
-        if (!$user) {
-            return new Response("Utilisateur non trouvé", 404);
-        }
-
-        $user->setEmailConfirmed(true);
-        $em->flush();
-
-        return new Response("Email confirmé : Vous pouvez vous connecter");
-    }
-
-    #[Route('/logout', name: 'app_logout')]
-    public function logout(Request $request): Response
-    {
-        $session = $request->getSession();
-        $session->remove('user_id'); // Supprime la session de l'utilisateur
-
-        return $this->redirectToRoute('app_login');
+        return $this->render('auth/login.html.twig');
     }
 }

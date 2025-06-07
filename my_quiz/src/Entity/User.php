@@ -22,6 +22,9 @@ class User
     #[ORM\Column(type: "boolean", name: "email_confirmed")]
     private $emailConfirmed = false;
 
+    #[ORM\Column(type: "string", length: 64, nullable: true)]
+    private $confirmationToken; // <- manquant
+
     public function getId(): ?int
     {
         return $this->id;
@@ -57,6 +60,17 @@ class User
     public function setEmailConfirmed(bool $confirmed): self
     {
         $this->emailConfirmed = $confirmed;
+        return $this;
+    }
+
+    public function getConfirmationToken(): ?string
+    {
+        return $this->confirmationToken;
+    }
+
+    public function setConfirmationToken(?string $token): self
+    {
+        $this->confirmationToken = $token;
         return $this;
     }
 }
