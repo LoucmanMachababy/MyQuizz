@@ -26,5 +26,8 @@ class AccountController extends AbstractController
         if ($request->isMethod('POST')) {
             $newEmail = $request->request->get('email');
             if ($newEmail && $newEmail !== $user->getEmail()) {
+                $user->setEmail($newEmail);
+                $user->setEmailConfirmed(false);
+                $token = bin2hex(random_bytes(32));                $user->setConfirmationToken($token);
+
                
-}
