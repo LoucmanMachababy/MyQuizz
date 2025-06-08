@@ -23,5 +23,6 @@ class AccountController extends AbstractController
     {
         $user = $this->getUser();
 
-
+        if ($request->isMethod('POST')) {
+           
 }
