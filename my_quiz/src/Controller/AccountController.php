@@ -24,5 +24,7 @@ class AccountController extends AbstractController
         $user = $this->getUser();
 
         if ($request->isMethod('POST')) {
-           
+            $newEmail = $request->request->get('email');
+            if ($newEmail && $newEmail !== $user->getEmail()) {
+               
 }
