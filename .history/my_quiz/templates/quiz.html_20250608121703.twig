@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Toutes les catégories{% endblock %}
+
+{% block body %}
+    <h1>Liste des quiz</h1>
+
+    <p>
+        <a href="{{ path('quiz_history') }}">🕘 Voir l'historique</a>
+    </p>
+
+
+    <ul>
+        {% for categorie in categories %}
+            <li>
+                <a href="{{ path('quiz_categorie', { id: categorie.id }) }}">
+                    {{ categorie.nom }}
+                </a>
+            </li>
+            
+        {% else %}
+            <li>Aucune catégorie disponible.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

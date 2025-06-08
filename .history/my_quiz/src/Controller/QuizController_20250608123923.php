@@ -149,7 +149,7 @@ class QuizController extends AbstractController
 
             foreach ($questionsData as $index => $qData) {
                 if (empty($qData['text']) || !isset($qData['bonne_reponse']) || empty($qData['reponses'])) {
-                    continue; // ignore les questions incomplètes
+                    continue; // Ignore les questions incomplètes
                 }
 
                 $question = new Question();

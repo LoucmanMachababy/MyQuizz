@@ -129,44 +129,44 @@ class QuizController extends AbstractController
 
     #[Route('/quiz/create', name: 'quiz_create')]
     public function createSimpleQuiz(Request $request, EntityManagerInterface $em): Response
-    {
-        $session = $request->getSession();
-        if (!$session->has('user_id')) {
-            return $this->redirectToRoute('app_login');
+{
+    $session = $request->getSession();
+    if (!$session->has('user_id')) {
+        return $this->redirectToRoute('app_login');
+    }
+
+    if ($request->isMethod('POST')) {
+        $categorieName = $request->request->get('categorie');
+        $questionsData = $request->request->all('questions');
+
+        if (!$categorieName || empty($questionsData)) {
+            return new Response('Tous les champs sont requis.', 400);
         }
 
-        if ($request->isMethod('POST')) {
-            $categorieName = $request->request->get('categorie');
-            $questionsData = $request->request->all('questions');
+        $categorie = new Categorie();
+        $categorie->setNom($categorieName);
+        $em->persist($categorie);
 
-            if (!$categorieName || empty($questionsData)) {
-                return new Response('Tous les champs sont requis.', 400);
+        foreach ($questionsData as $index => $qData) {
+            if (empty($qData['text']) || !isset($qData['bonne_reponse']) || empty($qData['reponses'])) {
+                continue; // Ignore les questions incomplètes
             }
 
-            $categorie = new Categorie();
-            $categorie->setNom($categorieName);
-            $em->persist($categorie);
+            $question = new Question();
+            $question->setQuestion($qData['text']);
+            $question->setCategorie($categorie);
+            $em->persist($question);
 
-            foreach ($questionsData as $index => $qData) {
-                if (empty($qData['text']) || !isset($qData['bonne_reponse']) || empty($qData['reponses'])) {
-                    continue; // ignore les questions incomplètes
-                }
+            foreach ($qData['reponses'] as $rIndex => $rData) {
+                if (empty($rData['text'])) continue;
 
-                $question = new Question();
-                $question->setQuestion($qData['text']);
-                $question->setCategorie($categorie);
-                $em->persist($question);
-
-                foreach ($qData['reponses'] as $rIndex => $rData) {
-                    if (empty($rData['text'])) continue;
-
-                    $reponse = new Reponse();
-                    $reponse->setReponse($rData['text']);
-                    $reponse->setEstCorrecte((int)$qData['bonne_reponse'] === (int)$rIndex);
-                    $reponse->setQuestion($question);
-                    $em->persist($reponse);
-                }
+                $reponse = new Reponse();
+                $reponse->setReponse($rData['text']);
+                $reponse->setEstCorrecte((int)$qData['bonne_reponse'] === (int)$rIndex);
+                $reponse->setQuestion($question);
+                $em->persist($reponse);
             }
+        }
 
         $em->flush();
 

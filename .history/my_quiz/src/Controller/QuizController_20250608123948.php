@@ -148,9 +148,7 @@ class QuizController extends AbstractController
             $em->persist($categorie);
 
             foreach ($questionsData as $index => $qData) {
-                if (empty($qData['text']) || !isset($qData['bonne_reponse']) || empty($qData['reponses'])) {
-                    continue; // ignore les questions incomplètes
-                }
+              x
 
                 $question = new Question();
                 $question->setQuestion($qData['text']);

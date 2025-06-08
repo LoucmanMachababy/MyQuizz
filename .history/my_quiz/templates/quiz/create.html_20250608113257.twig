@@ -1,0 +1,22 @@
+<h1>Créer un quiz simple</h1>
+
+<form method="post">
+    <label>Nom de la catégorie :</label>
+    <input type="text" name="categorie" required><br><br>
+
+    <label>Question :</label>
+    <textarea name="question" required></textarea><br><br>
+
+    <label>Réponses :</label><br>
+    <input type="text" name="reponses[]" placeholder="Réponse 1" required>
+    <input type="radio" name="bonne_reponse" value="0" required> Correcte<br>
+
+    <input type="text" name="reponses[]" placeholder="Réponse 2" required>
+    <input type="radio" name="bonne_reponse" value="1"> Correcte<br>
+
+    <input type="text" name="reponses[]" placeholder="Réponse 3">
+    <input type="radio" name="bonne_reponse" value="2"> Correcte<br>
+
+    <br>
+    <button type="submit">Créer le quiz</button>
+</form>

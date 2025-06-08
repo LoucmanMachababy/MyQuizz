@@ -41,7 +41,7 @@ class QuizController extends AbstractController
         ]);
     }
 
-    #[Route('/quiz/{id}', name: 'quiz_categorie', requirements: ['id' => '\d+'])]
+    #[Route('/quiz/{id}', name: 'quiz_categorie')]
     public function quizCategorie(Categorie $categorie, Request $request, SessionInterface $session)
     {
 
@@ -132,41 +132,37 @@ class QuizController extends AbstractController
     {
         $session = $request->getSession();
         if (!$session->has('user_id')) {
-            return $this->redirectToRoute('app_login');
+        return $this->redirectToRoute('app_login');
+    }
+
+    if ($request->isMethod('POST')) {
+        $categorieName = $request->request->get('categorie');
+        $questionText = $request->request->get('question');
+        $reponses = $request->request->get('reponses');
+        $bonneReponse = $request->request->get('bonne_reponse');
+
+        if (!$categorieName || !$questionText || !$reponses || $bonneReponse === null) {
+            return new Response('Tous les champs sont requis.', 400);
         }
 
-        if ($request->isMethod('POST')) {
-            $categorieName = $request->request->get('categorie');
-            $questionsData = $request->request->all('questions');
+        $categorie = new Categorie();
+        $categorie->setNom($categorieName);
+        $em->persist($categorie);
 
-            if (!$categorieName || empty($questionsData)) {
-                return new Response('Tous les champs sont requis.', 400);
-            }
+        $question = new Question();
+        $question->setQuestion($questionText);
+        $question->setCategorie($categorie);
+        $em->persist($question);
 
-            $categorie = new Categorie();
-            $categorie->setNom($categorieName);
-            $em->persist($categorie);
+        $em->flush();
 
-            foreach ($questionsData as $index => $qData) {
-                if (empty($qData['text']) || !isset($qData['bonne_reponse']) || empty($qData['reponses'])) {
-                    continue; // ignore les questions incomplètes
-                }
-
-                $question = new Question();
-                $question->setQuestion($qData['text']);
-                $question->setCategorie($categorie);
-                $em->persist($question);
-
-                foreach ($qData['reponses'] as $rIndex => $rData) {
-                    if (empty($rData['text'])) continue;
-
-                    $reponse = new Reponse();
-                    $reponse->setReponse($rData['text']);
-                    $reponse->setEstCorrecte((int)$qData['bonne_reponse'] === (int)$rIndex);
-                    $reponse->setQuestion($question);
-                    $em->persist($reponse);
-                }
-            }
+        foreach ($reponses as $index => $text) {
+            $reponse = new Reponse();
+            $reponse->setReponse($text);
+            $reponse->setEstCorrecte((string)$index === (string)$bonneReponse);
+            $reponse->setQuestion($question);
+            $em->persist($reponse);
+        }
 
         $em->flush();
 
@@ -175,7 +171,6 @@ class QuizController extends AbstractController
 
     return $this->render('quiz/create.html.twig');
 }
-
 }
 
 
