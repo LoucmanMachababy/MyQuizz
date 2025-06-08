@@ -52,5 +52,7 @@ class AccountController extends AbstractController
 
     #[Route('/account/password', name: 'account_password')]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
- 
+    public function changePassword(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $em): Response
+    {
+        
 }
