@@ -73,6 +73,9 @@ class AuthController extends AbstractController
     #[Route('/login', name: 'app_login')]
     public function login(Request $request, EntityManagerInterface $em): Response
     {
+        dump($this->getUser());
+dump($this->getUser()->getRoles());
+die();
 
         if ($request->isMethod('POST')) {
             $email = $request->request->get('email');

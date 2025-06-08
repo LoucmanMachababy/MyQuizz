@@ -49,6 +49,10 @@ when@test:
     main:
       lazy: true
       provider: app_user_provider
+      form_login:
+        login_path: login
+        check_path: login
+     logout:
 
       # Autoriser l’accès anonyme (pour la page de login / register)
       anonymous: true

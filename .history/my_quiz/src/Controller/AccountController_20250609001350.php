@@ -81,6 +81,7 @@ class AccountController extends AbstractController
         return $this->redirectToRoute('app_login');
     }
 
+    // Changement de mot de passe
     #[Route('/account/password', name: 'account_password')]
     public function changePassword(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $em): Response
     {

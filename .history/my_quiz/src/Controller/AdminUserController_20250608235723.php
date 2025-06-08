@@ -14,13 +14,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
     #[Route('/admin/users')]
     // #[IsGranted('ROLE_ADMIN')]
     final class AdminUserController extends AbstractController
-    {   
+    {
+        
+
         #[Route('/', name: 'admin_users_list')]
         public function index(UserRepository $userRepository): Response
         {
-            if (!$this->isGranted('ROLE_USER')) {
-                return $this->redirectToRoute('quiz_global'); 
-                }
 
             $users = $userRepository->findAll();
 

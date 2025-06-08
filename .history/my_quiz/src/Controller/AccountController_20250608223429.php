@@ -15,9 +15,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AccountController extends AbstractController
 {
+    // Changement d'adresse email avec confirmation
     #[Route('/account/email', name: 'account_email')]
     public function changeEmail(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
     {
+        // Récupérer l'utilisateur depuis la session
         $session = $request->getSession();
         $userId = $session->get('user_id');
 
@@ -63,6 +65,7 @@ class AccountController extends AbstractController
         ]);
     }
 
+    // Traitement du lien de confirmation d’email
     #[Route('/account/confirm/{token}', name: 'account_confirm_new_email')]
     public function confirmNewEmail(string $token, EntityManagerInterface $em): Response
     {
@@ -81,9 +84,11 @@ class AccountController extends AbstractController
         return $this->redirectToRoute('app_login');
     }
 
+    // Changement de mot de passe
     #[Route('/account/password', name: 'account_password')]
     public function changePassword(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $em): Response
     {
+        // Récupérer l'utilisateur depuis la session
         $session = $request->getSession();
         $userId = $session->get('user_id');
 

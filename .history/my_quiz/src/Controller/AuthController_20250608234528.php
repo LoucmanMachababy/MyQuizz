@@ -78,7 +78,7 @@ class AuthController extends AbstractController
             $email = $request->request->get('email');
             $password = $request->request->get('password');
 
-            $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
+            $user = $em->getaRepository(User::class)->findOneBy(['email' => $email]);
 
             if (!$user || !password_verify($password, $user->getPassword())) {
                 return $this->render('auth/login.html.twig', [

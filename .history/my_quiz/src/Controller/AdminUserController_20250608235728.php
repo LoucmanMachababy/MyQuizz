@@ -18,9 +18,6 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
         #[Route('/', name: 'admin_users_list')]
         public function index(UserRepository $userRepository): Response
         {
-            if (!$this->isGranted('ROLE_USER')) {
-                return $this->redirectToRoute('quiz_global'); 
-                }
 
             $users = $userRepository->findAll();
 

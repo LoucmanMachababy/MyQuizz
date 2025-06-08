@@ -19,6 +19,7 @@
                     </form>
                     {% endif %}
 
+                    <!-- Supprimer -->
                     <form action="{{ path('admin_users_delete', {id: user.id}) }}" method="post" onsubmit="return confirm('Supprimer cet utilisateur ?');">
                          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
                          <button type="submit">Supprimer</button>
