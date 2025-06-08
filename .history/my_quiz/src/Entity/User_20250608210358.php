@@ -88,9 +88,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $roles = $this->roles;
 
-        $roles[] = 'ROLE_USER';
+    // Garantit que chaque utilisateur a au moins ROLE_USER
+    $roles[] = 'ROLE_USER';
 
-        return array_unique($roles);
+    return array_unique($roles);
     }
 
     public function eraseCredentials(): void

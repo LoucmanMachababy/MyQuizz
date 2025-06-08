@@ -1,0 +1,31 @@
+<h2>Liste des utilisateurs</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Rôle(s)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+            <tr>
+                <td>{{ user.email }}</td>
+                <td>{{ user.roles | join(', ') }}</td>
+                <td>
+                    <!-- Promouvoir en admin -->
+                    {% if 'ROLE_ADMIN' not in user.roles %}
+                    <form action="{{ path('admin_users_promote', {'id': user.id}) }}" method="post" style="display:inline;">
+                        <button type="submit">Promouvoir admin</button>
+                    </form>
+
+                    <!-- Supprimer -->
+                    <form action="{{ path('admin_users_delete', {id: user.id}) }}" method="post" onsubmit="return confirm('Supprimer cet utilisateur ?');">
+                         <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                         <button type="submit">Supprimer</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

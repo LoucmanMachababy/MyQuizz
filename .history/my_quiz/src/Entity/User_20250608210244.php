@@ -27,7 +27,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: "string", length: 64, nullable: true)]
     private $confirmationToken;
 
-    #[ORM\Column(type: "json")]
     private array $roles = [];
 
     public function getId(): ?int
@@ -86,11 +85,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function getRoles(): array
     {
-        $roles = $this->roles;
-
-        $roles[] = 'ROLE_USER';
-
-        return array_unique($roles);
+        return ['ROLE_USER'];
     }
 
     public function eraseCredentials(): void

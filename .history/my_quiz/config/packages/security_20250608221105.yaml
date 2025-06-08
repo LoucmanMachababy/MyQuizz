@@ -16,6 +16,11 @@ security:
     main:
       lazy: true
       provider: app_user_provider
+      anonymous: true
+  form_login:
+    login_path: app_login
+    check_path: app_login
+    default_target_path: quiz_global
 
       # activate different ways to authenticate
       # https://symfony.com/doc/current/security.html#the-firewall
