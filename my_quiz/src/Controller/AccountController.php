@@ -44,7 +44,7 @@ class AccountController extends AbstractController
             }
         }
 
-        return $this->render('account/change_email.html.twig', [
+        return $this->render('accountsettings/change_email.html.twig', [
             'user' => $user,
         ]);
     }
@@ -64,6 +64,6 @@ class AccountController extends AbstractController
             }
         }
 
-        return $this->render('account/change_password.html.twig');
+        return $this->render('accountsettings/change_password.html.twig');
     }
 }
