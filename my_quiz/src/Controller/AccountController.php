@@ -18,5 +18,39 @@ use Symfony\Component\Uid\Uuid;
 class AccountController extends AbstractController
 {
     #[Route('/account/email', name: 'account_email')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function changeEmail(Request $request, EntityManagerInterface $em, MailerInterface $mailer): Response
+    {
+        $user = $this->getUser();
 
+        if ($request->isMethod('POST')) {
+            $newEmail = $request->request->get('email');
+            if ($newEmail && $newEmail !== $user->getEmail()) {
+                $user->setEmail($newEmail);
+                $user->setEmailConfirmed(false);
+                $token = Uuid::v4()->toRfc4122();
+                $user->setConfirmationToken($token);
+
+                $em->flush();
+
+                $email = (new Email())
+                    ->from('no-reply@myquizz.com')
+                    ->to($newEmail)
+                    ->subject('Confirme ton nouvel email')
+                    ->text("Clique ici pour confirmer ton nouvel email : http://localhost:8000/confirm/" . $token);
+
+                $mailer->send($email);
+
+                $this->addFlash('success', 'Un email de confirmation a été envoyé.');
+            }
+        }
+
+        return $this->render('account/change_email.html.twig', [
+            'user' => $user,
+        ]);
+    }
+
+    #[Route('/account/password', name: 'account_password')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+ 
 }
