@@ -30,4 +30,21 @@ class AccountController extends AbstractController
                 $user->setEmailConfirmed(false);
                 $token = bin2hex(random_bytes(32));                $user->setConfirmationToken($token);
 
-               
+                $em->flush();
+
+                $email = (new Email())
+                    ->from('ne-pas-repondre@myquizz.com')
+                    ->to($newEmail)
+                    ->subject('Confirme ton nvx email')
+                    ->text("Clique ici pour confirmer ton nouvel email : http://localhost:8000/confirm/" . $token);
+
+                $mailer->send($email);
+
+                $this->addFlash('success', 'Un email de confirmation a été envoyé.');
+            }
+        }
+
+        return $this->render('account/change_email.html.twig', [
+            'user' => $user,
+        ]);
+    }
