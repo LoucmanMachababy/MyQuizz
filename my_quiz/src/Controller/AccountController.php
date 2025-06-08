@@ -48,3 +48,22 @@ class AccountController extends AbstractController
             'user' => $user,
         ]);
     }
+
+    #[Route('/account/password', name: 'account_password')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function changePassword(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $em): Response
+    {
+        $user = $this->getUser();
+
+        if ($request->isMethod('POST')) {
+            $password = $request->request->get('password');
+            if ($password) {
+                $user->setPassword($hasher->hashPassword($user, $password));
+                $em->flush();
+                $this->addFlash('success', 'Mot de passe modifié avec succès.');
+            }
+        }
+
+        return $this->render('account/change_password.html.twig');
+    }
+}
