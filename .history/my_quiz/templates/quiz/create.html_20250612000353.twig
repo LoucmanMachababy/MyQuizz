@@ -1,0 +1,22 @@
+<h1>Créer un quiz avec plusieurs questions</h1>
+
+<form method="post">
+    <label>Nom de la catégorie :</label>
+    <input type="text" name="categorie" required><br><br>
+
+    {% for i in 0..9 %}
+        <fieldset style="margin-bottom: 20px;">
+            <legend>Question {{ i + 1 }}</legend>
+            <label>Question :</label>
+            <textarea name="questions[{{ i }}][text]" required></textarea><br><br>
+
+            <label>Réponses :</label><br>
+            {% for j in 0..2 %}
+                <input type="text" name="questions[{{ i }}][reponses][{{ j }}][text]" placeholder="Réponse {{ j + 1 }}" required>
+                <input type="radio" name="questions[{{ i }}][bonne_reponse]" value="{{ j }}" required> Correcte<br>
+            {% endfor %}
+        </fieldset>
+    {% endfor %}
+
+    <button type="submit">Créer le quiz</button>
+</form>
