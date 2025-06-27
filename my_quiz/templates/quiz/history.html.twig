@@ -1,34 +1,148 @@
-<h1 style="text-align: center; color: #6c5ce7; font-family: sans-serif; margin-bottom: 1em;">
-    Historique des Quiz
-</h1>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Historique des Quiz</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2em;
+        }
+        .header {
+            background-color: #9b6ef3;
+            color: white;
+            padding: 1em 2em;
+            border-radius: 15px;
+            margin-bottom: 2em;
+            text-align: center;
+        }
+        .history-container {
+            background-color: white;
+            padding: 2em;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1em;
+        }
+        th, td {
+            padding: 0.8em;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #9b6ef3;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .empty-message {
+            text-align: center;
+            color: #555;
+            padding: 2em;
+        }
+        .back-link {
+            text-align: center;
+            margin-top: 2em;
+        }
+        .back-link a {
+            color: #6c5ce7;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .session-notice {
+            background-color: #fdcb6e;
+            color: #2d3436;
+            padding: 1em;
+            border-radius: 8px;
+            margin-bottom: 1em;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🕘 Historique des Quiz</h1>
+        </div>
 
-<div style="max-width: 800px; margin: 0 auto; background-color: #f8f8ff; padding: 2em; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); font-family: sans-serif;">
-    {% if history is empty %}
-        <p style="text-align: center; color: #555;">Aucun quiz effectué pour le moment.</p>
-    {% else %}
-        <table style="width: 100%; border-collapse: collapse; font-size: 1em;">
-            <thead>
-                <tr style="background-color: #9b6ef3; color: white;">
-                    <th style="padding: 0.8em; text-align: left; border-top-left-radius: 10px;">Catégorie</th>
-                    <th style="padding: 0.8em; text-align: center;">Score</th>
-                    <th style="padding: 0.8em; text-align: right; border-top-right-radius: 10px;">Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in history %}
-                    <tr style="background-color: {{ loop.index is odd ? '#ece5fc' : '#ffffff' }};">
-                        <td style="padding: 0.8em;">{{ item.categorie }}</td>
-                        <td style="padding: 0.8em; text-align: center;">{{ item.score }}/{{ item.total }}</td>
-                        <td style="padding: 0.8em; text-align: right;">{{ item.date }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% endif %}
-</div>
+        {% if not isConnected %}
+            <div class="session-notice">
+                <strong>⚠️ Attention :</strong> Vous n'êtes pas connecté. Cet historique est temporaire et sera perdu si vous fermez votre navigateur.
+                <br>
+                <a href="{{ path('app_login') }}" style="color: #2d3436; text-decoration: underline;">Connectez-vous</a> pour sauvegarder votre historique.
+            </div>
+        {% endif %}
 
-<div style="text-align: center; margin-top: 2em;">
-    <a href="{{ path('quiz_global') }}" style="color: #6c5ce7; font-weight: bold; text-decoration: none;">
-        ⬅ Retour aux catégories
-    </a>
-</div>
+        <div class="history-container">
+            {% if history is empty %}
+                <div class="empty-message">
+                    <p>Aucun quiz effectué pour le moment.</p>
+                    {% if not isConnected %}
+                        <p><small>Connectez-vous pour voir votre historique complet.</small></p>
+                    {% endif %}
+                </div>
+            {% else %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Catégorie</th>
+                            <th style="text-align: center;">Score</th>
+                            <th style="text-align: center;">Pourcentage</th>
+                            <th style="text-align: right;">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history %}
+                            <tr>
+                                <td>
+                                    {% if isConnected %}
+                                        {{ item.categorie.nom }}
+                                    {% else %}
+                                        {{ item.categorie }}
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if isConnected %}
+                                        {{ item.score }}/{{ item.totalQuestions }}
+                                    {% else %}
+                                        {{ item.score }}/{{ item.total }}
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if isConnected %}
+                                        {{ item.percentage }}%
+                                    {% else %}
+                                        {{ ((item.score / item.total) * 100)|round(1) }}%
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: right;">
+                                    {% if isConnected %}
+                                        {{ item.completedAt|date('d/m/Y H:i') }}
+                                    {% else %}
+                                        {{ item.date }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        </div>
+
+        <div class="back-link">
+            <a href="{{ path('quiz_global') }}">⬅ Retour aux catégories</a>
+        </div>
+    </div>
+</body>
+</html>

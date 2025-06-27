@@ -3,33 +3,251 @@
 {% block title %}Toutes les catégories{% endblock %}
 
 {% block body %}
+<style>
+    .quiz-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 70vh;
+        animation: fadeIn 0.8s ease;
+    }
 
-    <div style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
-        <div style="background-color: #9b6ef3; color: white; padding: 2em; border-radius: 15px; max-width: 600px; width: 100%; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-            <h1 style="text-align: center;">Liste des quiz 📋</h1>
+    .quiz-card {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        padding: 3rem;
+        border-radius: 24px;
+        max-width: 700px;
+        width: 100%;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
 
+    .quiz-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--accent-gradient);
+        border-radius: 24px 24px 0 0;
+    }
 
-            <p style="text-align: center; margin-bottom: 1.5em;">
-                <a href="{{ path('quiz_history') }}" style="color: white; text-decoration: underline;">🕘 Voir l'historique</a>
-            </p>
+    .quiz-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--card-shadow-hover);
+    }
 
-            <ul style="list-style: none; padding: 0;">
-                {% for categorie in categories %}
-                    <li style="margin-bottom: 1em; text-align: center;">
-                        <a href="{{ path('quiz_categorie', { id: categorie.id }) }}" style="color: white; font-weight: bold; text-decoration: none; background-color: rgba(255,255,255,0.1); padding: 0.5em 1em; border-radius: 10px; display: inline-block;">
-                            {{ categorie.nom }}
-                        </a>
-                    </li>
-                {% else %}
-                    <li style="text-align: center;">Aucune catégorie disponible.</li>
-                {% endfor %}
-            </ul>
+    .quiz-title {
+        text-align: center;
+        margin-bottom: 2rem;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 2.5rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
 
-            {% if is_granted('ROLE_ADMIN') %}
-                <div style="margin-top: 2em; text-align: center;">
-                    <a href="{{ path('admin_users_list') }}" style="color: white; font-weight: bold; text-decoration: underline;">🔒 Tableau de bord admin</a>
-                </div>
-            {% endif %}
-        </div>
+    .quiz-subtitle {
+        text-align: center;
+        color: var(--text-secondary);
+        margin-bottom: 2.5rem;
+        font-size: 1.1rem;
+    }
+
+    .quiz-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 1rem;
+    }
+
+    .quiz-links li {
+        margin: 0;
+    }
+
+    .quiz-link {
+        color: var(--text-primary);
+        font-weight: 600;
+        text-decoration: none;
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        padding: 1.2rem 2rem;
+        border-radius: 16px;
+        display: block;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 2px solid transparent;
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+        font-size: 1.1rem;
+    }
+
+    .quiz-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: var(--accent-gradient);
+        transition: left 0.4s ease;
+        z-index: -1;
+    }
+
+    .quiz-link:hover::before {
+        left: 0;
+    }
+
+    .quiz-link:hover {
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+        color: white;
+        border-color: var(--accent-color);
+    }
+
+    .history-link {
+        color: var(--accent-color);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        background: rgba(102, 126, 234, 0.1);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+    }
+
+    .history-link:hover {
+        background: rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .admin-link {
+        margin-top: 2.5rem;
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .admin-link a {
+        color: var(--accent-color);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        background: rgba(102, 126, 234, 0.1);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .admin-link a:hover {
+        background: rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .empty-message {
+        text-align: center;
+        color: var(--text-muted);
+        font-style: italic;
+        padding: 3rem 2rem;
+        background: var(--bg-tertiary);
+        border-radius: 16px;
+        border: 2px dashed var(--border-color);
+    }
+
+    .empty-message::before {
+        content: '📚';
+        font-size: 3rem;
+        display: block;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .quiz-card {
+            margin: 1rem;
+            padding: 2rem;
+            border-radius: 20px;
+        }
+
+        .quiz-title {
+            font-size: 2rem;
+        }
+
+        .quiz-link {
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        .quiz-subtitle {
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .quiz-card {
+            padding: 1.5rem;
+            margin: 0.5rem;
+        }
+
+        .quiz-title {
+            font-size: 1.75rem;
+        }
+
+        .quiz-link {
+            padding: 0.9rem 1.2rem;
+            font-size: 0.95rem;
+        }
+    }
+</style>
+
+<div class="quiz-container">
+    <div class="quiz-card">
+        <h1 class="quiz-title">Liste des quiz 📋</h1>
+        <p class="quiz-subtitle">Choisissez une catégorie et testez vos connaissances !</p>
+
+        <p style="text-align: center; margin-bottom: 2rem;">
+            <a href="{{ path('quiz_history') }}" class="history-link">
+                🕘 Voir l'historique
+            </a>
+        </p>
+
+        <ul class="quiz-links">
+            {% for categorie in categories %}
+                <li>
+                    <a href="{{ path('quiz_categorie', { id: categorie.id }) }}" class="quiz-link">
+                        {{ categorie.nom }}
+                    </a>
+                </li>
+            {% else %}
+                <li class="empty-message">
+                    Aucune catégorie disponible pour le moment.
+                    <br><small>Revenez plus tard ou créez votre propre quiz !</small>
+                </li>
+            {% endfor %}
+        </ul>
+
+        {% if is_granted('ROLE_ADMIN') %}
+            <div class="admin-link">
+                <a href="{{ path('admin_users_list') }}">
+                    🔒 Tableau de bord admin
+                </a>
+            </div>
+        {% endif %}
     </div>
+</div>
 {% endblock %}

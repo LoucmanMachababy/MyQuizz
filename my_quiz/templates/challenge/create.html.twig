@@ -1,0 +1,155 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Lancer un défi - MyQuizz{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h4 mb-0">
+                        <i class="fas fa-sword"></i>
+                        Lancer un défi
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="challenged_email" class="form-label">
+                                <i class="fas fa-user text-primary"></i>
+                                Email de l'adversaire *
+                            </label>
+                            <input type="email" class="form-control" id="challenged_email" name="challenged_email" 
+                                   placeholder="adversaire@example.com" required>
+                            <div class="form-text">
+                                Entrez l'email de la personne que vous voulez défier.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">
+                                <i class="fas fa-tag text-primary"></i>
+                                Titre du défi *
+                            </label>
+                            <input type="text" class="form-control" id="title" name="title" 
+                                   placeholder="Ex: Défi Histoire - Qui connaît le mieux l'Histoire ?" required>
+                            <div class="form-text">
+                                Donnez un titre accrocheur à votre défi.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">
+                                <i class="fas fa-align-left text-primary"></i>
+                                Description
+                            </label>
+                            <textarea class="form-control" id="description" name="description" rows="3"
+                                      placeholder="Décrivez votre défi, les enjeux, etc."></textarea>
+                            <div class="form-text">
+                                Optionnel : Ajoutez une description pour motiver votre adversaire.
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="category" class="form-label">
+                                    <i class="fas fa-folder text-primary"></i>
+                                    Catégorie *
+                                </label>
+                                <select class="form-select" id="category" name="category" required>
+                                    <option value="">Choisir une catégorie</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category }}">{{ category }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="difficulty" class="form-label">
+                                    <i class="fas fa-chart-line text-primary"></i>
+                                    Difficulté
+                                </label>
+                                <select class="form-select" id="difficulty" name="difficulty">
+                                    <option value="easy">Facile</option>
+                                    <option value="medium" selected>Moyen</option>
+                                    <option value="hard">Difficile</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="questionCount" class="form-label">
+                                    <i class="fas fa-question-circle text-primary"></i>
+                                    Nombre de questions
+                                </label>
+                                <select class="form-select" id="questionCount" name="questionCount">
+                                    <option value="5">5 questions</option>
+                                    <option value="10" selected>10 questions</option>
+                                    <option value="15">15 questions</option>
+                                    <option value="20">20 questions</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="timeLimit" class="form-label">
+                                    <i class="fas fa-clock text-primary"></i>
+                                    Temps limite (minutes)
+                                </label>
+                                <select class="form-select" id="timeLimit" name="timeLimit">
+                                    <option value="180">3 minutes</option>
+                                    <option value="300" selected>5 minutes</option>
+                                    <option value="600">10 minutes</option>
+                                    <option value="900">15 minutes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane"></i>
+                                Lancer le défi
+                            </button>
+                            <a href="{{ path('challenge_index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i>
+                                Retour aux défis
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Conseils -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lightbulb text-warning"></i>
+                        Conseils pour un bon défi
+                    </h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Choisissez une catégorie que vous maîtrisez
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Adaptez la difficulté au niveau de votre adversaire
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Donnez un titre motivant et engageant
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Respectez le temps limite pour maintenir l'excitation
+                        </li>
+                        <li>
+                            <i class="fas fa-check text-success me-2"></i>
+                            Soyez fair-play et respectueux
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

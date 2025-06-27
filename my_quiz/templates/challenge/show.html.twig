@@ -1,0 +1,213 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ challenge.title }} - MyQuizz{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <!-- En-tête du défi -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center mb-2">
+                                <h1 class="h2 mb-0 me-3">{{ challenge.title }}</h1>
+                                <span class="badge bg-{{ challenge.status == 'pending' ? 'warning' : (challenge.status == 'accepted' ? 'success' : (challenge.status == 'completed' ? 'info' : 'secondary')) }}">
+                                    {{ challenge.status|title }}
+                                </span>
+                            </div>
+                            {% if challenge.description %}
+                            <p class="text-muted mb-3">{{ challenge.description }}</p>
+                            {% endif %}
+                            <div class="row text-center">
+                                <div class="col-3">
+                                    <div class="text-primary fw-bold fs-4">{{ challenge.questionCount }}</div>
+                                    <small class="text-muted">Questions</small>
+                                </div>
+                                <div class="col-3">
+                                    <div class="text-info fw-bold fs-4">{{ challenge.category }}</div>
+                                    <small class="text-muted">Catégorie</small>
+                                </div>
+                                <div class="col-3">
+                                    <div class="text-success fw-bold fs-4">{{ challenge.difficulty|title }}</div>
+                                    <small class="text-muted">Difficulté</small>
+                                </div>
+                                <div class="col-3">
+                                    <div class="text-warning fw-bold fs-4">{{ challenge.timeLimitFormatted }}</div>
+                                    <small class="text-muted">Temps limite</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            {% if is_challenged and not challenge.isAccepted and not challenge.isExpired %}
+                            <div class="d-grid gap-2">
+                                <form method="POST" action="{{ path('challenge_accept', {id: challenge.id}) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-lg w-100">
+                                        <i class="fas fa-check"></i>
+                                        Accepter le défi
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ path('challenge_decline', {id: challenge.id}) }}" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-danger w-100" 
+                                            onclick="return confirm('Êtes-vous sûr de vouloir décliner ce défi ?')">
+                                        <i class="fas fa-times"></i>
+                                        Décliner
+                                    </button>
+                                </form>
+                            </div>
+                            {% elseif challenge.isAccepted and not challenge.isCompleted %}
+                            <a href="{{ path('challenge_play', {id: challenge.id}) }}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-play"></i>
+                                Jouer au défi
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Participants -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="h4 mb-3">
+                <i class="fas fa-users text-info"></i>
+                Participants
+            </h3>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="mb-2">
+                                <i class="fas fa-crown text-warning fs-1"></i>
+                            </div>
+                            <h6 class="card-title mb-1">{{ challenge.challenger.email }}</h6>
+                            <span class="badge bg-primary">Challenger</span>
+                            {% if challenger_result %}
+                            <div class="mt-2">
+                                <small class="text-muted">Score: {{ challenger_result.score }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="mb-2">
+                                <i class="fas fa-shield-alt text-info fs-1"></i>
+                            </div>
+                            <h6 class="card-title mb-1">{{ challenge.challenged.email }}</h6>
+                            <span class="badge bg-info">Challengé</span>
+                            {% if challenged_result %}
+                            <div class="mt-2">
+                                <small class="text-muted">Score: {{ challenged_result.score }}</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Résultats -->
+    {% if challenge.isCompleted %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="h4 mb-3">
+                <i class="fas fa-trophy text-warning"></i>
+                Résultats
+            </h3>
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    {% if winner %}
+                    <div class="text-center mb-4">
+                        <h4 class="text-success">
+                            <i class="fas fa-crown"></i>
+                            {{ winner.email }} a gagné !
+                        </h4>
+                    </div>
+                    {% else %}
+                    <div class="text-center mb-4">
+                        <h4 class="text-secondary">
+                            <i class="fas fa-handshake"></i>
+                            Match nul !
+                        </h4>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Challenger ({{ challenge.challenger.email }})</h5>
+                            {% if challenger_result %}
+                            <ul class="list-unstyled">
+                                <li><strong>Score:</strong> {{ challenger_result.score }}</li>
+                                <li><strong>Bonnes réponses:</strong> {{ challenger_result.correctAnswers }}/{{ challenger_result.totalQuestions }}</li>
+                                <li><strong>Pourcentage:</strong> {{ challenger_result.percentage }}%</li>
+                                <li><strong>Temps:</strong> {{ challenger_result.durationFormatted }}</li>
+                            </ul>
+                            {% else %}
+                            <p class="text-muted">N'a pas encore joué</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Challengé ({{ challenge.challenged.email }})</h5>
+                            {% if challenged_result %}
+                            <ul class="list-unstyled">
+                                <li><strong>Score:</strong> {{ challenged_result.score }}</li>
+                                <li><strong>Bonnes réponses:</strong> {{ challenged_result.correctAnswers }}/{{ challenged_result.totalQuestions }}</li>
+                                <li><strong>Pourcentage:</strong> {{ challenged_result.percentage }}%</li>
+                                <li><strong>Temps:</strong> {{ challenged_result.durationFormatted }}</li>
+                            </ul>
+                            {% else %}
+                            <p class="text-muted">N'a pas encore joué</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Informations -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-info-circle text-primary"></i>
+                        Informations du défi
+                    </h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><strong>Créé le:</strong> {{ challenge.createdAt|date('d/m/Y H:i') }}</li>
+                                <li><strong>Expire le:</strong> {{ challenge.expiresAt|date('d/m/Y H:i') }}</li>
+                                {% if challenge.acceptedAt %}
+                                <li><strong>Accepté le:</strong> {{ challenge.acceptedAt|date('d/m/Y H:i') }}</li>
+                                {% endif %}
+                                {% if challenge.completedAt %}
+                                <li><strong>Terminé le:</strong> {{ challenge.completedAt|date('d/m/Y H:i') }}</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <ul class="list-unstyled">
+                                <li><strong>Score maximum:</strong> {{ challenge.maxScore }}</li>
+                                <li><strong>Statut:</strong> {{ challenge.status|title }}</li>
+                                {% if challenge.isExpired %}
+                                <li><span class="text-danger"><strong>⚠️ Défi expiré</strong></span></li>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

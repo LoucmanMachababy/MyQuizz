@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Statistiques - Administration</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2em;
+        }
+        .header {
+            background-color: #9b6ef3;
+            color: white;
+            padding: 1em 2em;
+            border-radius: 15px;
+            margin-bottom: 2em;
+            text-align: center;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1em;
+            margin-bottom: 2em;
+        }
+        .stat-card {
+            background-color: white;
+            padding: 1.5em;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #9b6ef3;
+        }
+        .stat-label {
+            color: #666;
+            margin-top: 0.5em;
+        }
+        .section {
+            background-color: white;
+            padding: 1.5em;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2em;
+        }
+        .section h3 {
+            color: #9b6ef3;
+            margin-bottom: 1em;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 0.8em;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #6c5ce7;
+            color: white;
+        }
+        .btn {
+            background-color: #55efc4;
+            color: #2d3436;
+            padding: 0.5em 1em;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Tableau de bord - Statistiques</h1>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.total_quizzes|default(0) }}</div>
+                <div class="stat-label">Total des quiz passés</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.unique_users|default(0) }}</div>
+                <div class="stat-label">Utilisateurs uniques</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ stats.avg_score|default(0)|round(1) }}</div>
+                <div class="stat-label">Score moyen</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ usersActive }}</div>
+                <div class="stat-label">Utilisateurs actifs (1 mois)</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>📈 Activité par période</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats24h }}</div>
+                    <div class="stat-label">Dernières 24h</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ statsWeek }}</div>
+                    <div class="stat-label">Dernière semaine</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ statsMonth }}</div>
+                    <div class="stat-label">Dernier mois</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ statsYear }}</div>
+                    <div class="stat-label">Dernière année</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>👥 Utilisateurs</h3>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ usersActive }}</div>
+                    <div class="stat-label">Actifs (connexion ≤ 1 mois)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ usersInactive }}</div>
+                    <div class="stat-label">Inactifs (connexion > 1 mois)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>📚 Statistiques par catégorie</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Catégorie</th>
+                        <th>Nombre de quiz</th>
+                        <th>Score moyen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in categoryStats %}
+                        <tr>
+                            <td>{{ stat.categorie.nom }}</td>
+                            <td>{{ stat.quizCount }}</td>
+                            <td>{{ stat.avgScore|default(0)|round(1) }}/20</td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="3" style="text-align: center;">Aucune donnée disponible</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div style="text-align: center; margin-top: 2em;">
+            <a href="{{ path('admin_users_list') }}" class="btn">👥 Gestion utilisateurs</a>
+            <a href="{{ path('admin_categories_list') }}" class="btn">📚 Gestion catégories</a>
+            <a href="{{ path('admin_email') }}" class="btn">📧 Envoyer des emails</a>
+        </div>
+    </div>
+</body>
+</html> 

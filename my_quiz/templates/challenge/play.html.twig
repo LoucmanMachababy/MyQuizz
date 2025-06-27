@@ -1,0 +1,179 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Jouer - {{ challenge.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- En-tête du défi -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center">
+                    <h2 class="mb-3">{{ challenge.title }}</h2>
+                    {% if challenge.description %}
+                    <p class="text-muted mb-3">{{ challenge.description }}</p>
+                    {% endif %}
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <div class="text-primary fw-bold">{{ challenge.questionCount }}</div>
+                            <small class="text-muted">Questions</small>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-info fw-bold">{{ challenge.category }}</div>
+                            <small class="text-muted">Catégorie</small>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-success fw-bold">{{ challenge.difficulty|title }}</div>
+                            <small class="text-muted">Difficulté</small>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-warning fw-bold" id="timer">{{ challenge.timeLimitFormatted }}</div>
+                            <small class="text-muted">Temps restant</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if result.isCompleted %}
+            <!-- Quiz déjà terminé -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h3 class="text-success mb-3">
+                        <i class="fas fa-check-circle"></i>
+                        Quiz terminé !
+                    </h3>
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <div class="text-primary fw-bold fs-4">{{ result.score }}</div>
+                            <small class="text-muted">Score</small>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-success fw-bold fs-4">{{ result.correctAnswers }}/{{ result.totalQuestions }}</div>
+                            <small class="text-muted">Bonnes réponses</small>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-warning fw-bold fs-4">{{ result.percentage }}%</div>
+                            <small class="text-muted">Pourcentage</small>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <a href="{{ path('challenge_show', {id: challenge.id}) }}" class="btn btn-primary">
+                            <i class="fas fa-eye"></i>
+                            Voir les résultats
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <!-- Formulaire du quiz -->
+            <form method="POST" id="quiz-form">
+                {% for questionIndex, question in challenge.questions %}
+                <div class="card border-0 shadow-sm mb-4 question-card" data-question="{{ questionIndex }}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="card-title mb-0">Question {{ questionIndex + 1 }}</h5>
+                            <span class="badge bg-primary">{{ challenge.category }}</span>
+                        </div>
+                        <p class="card-text fs-5 mb-4">{{ question.question }}</p>
+                        
+                        <div class="row">
+                            {% for answerIndex, answer in question.reponses %}
+                            <div class="col-md-6 mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" 
+                                           name="answers[{{ questionIndex }}]" 
+                                           id="q{{ questionIndex }}_a{{ answerIndex }}" 
+                                           value="{{ answerIndex }}" required>
+                                    <label class="form-check-label" for="q{{ questionIndex }}_a{{ answerIndex }}">
+                                        {{ answer }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        Terminer le défi
+                    </button>
+                    <a href="{{ path('challenge_show', {id: challenge.id}) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Retour au défi
+                    </a>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const timerElement = document.getElementById('timer');
+    const submitBtn = document.getElementById('submit-btn');
+    const quizForm = document.getElementById('quiz-form');
+    
+    if (timerElement && submitBtn && quizForm) {
+        let timeRemaining = {{ challenge.timeLimit }};
+        
+        const timer = setInterval(function() {
+            timeRemaining--;
+            
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            timerElement.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeRemaining <= 0) {
+                clearInterval(timer);
+                timerElement.textContent = '00:00';
+                timerElement.classList.add('text-danger');
+                alert('Temps écoulé ! Le quiz va être soumis automatiquement.');
+                quizForm.submit();
+            } else if (timeRemaining <= 30) {
+                timerElement.classList.add('text-warning');
+            }
+        }, 1000);
+        
+        // Validation avant soumission
+        quizForm.addEventListener('submit', function(e) {
+            const questions = document.querySelectorAll('.question-card');
+            let allAnswered = true;
+            
+            questions.forEach(function(question) {
+                const questionIndex = question.dataset.question;
+                const answers = document.querySelectorAll(`input[name="answers[${questionIndex}]"]:checked`);
+                if (answers.length === 0) {
+                    allAnswered = false;
+                }
+            });
+            
+            if (!allAnswered) {
+                e.preventDefault();
+                alert('Veuillez répondre à toutes les questions avant de soumettre.');
+                return false;
+            }
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Soumission...';
+        });
+    }
+    
+    // Animation des questions
+    const questionCards = document.querySelectorAll('.question-card');
+    questionCards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+});
+</script>
+{% endblock %} 

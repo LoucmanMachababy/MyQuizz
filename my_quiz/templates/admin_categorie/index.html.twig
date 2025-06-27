@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des catégories</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2em;
+        }
+        .header {
+            background-color: #9b6ef3;
+            color: white;
+            padding: 1em 2em;
+            border-radius: 15px;
+            margin-bottom: 2em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            background-color: #55efc4;
+            color: #2d3436;
+            padding: 0.5em 1em;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.2em;
+            cursor: pointer;
+        }
+        .btn-danger {
+            background-color: #ff7675;
+            color: white;
+        }
+        .btn-warning {
+            background-color: #fdcb6e;
+            color: #2d3436;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 1em;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #6c5ce7;
+            color: white;
+        }
+        .flash {
+            padding: 1em;
+            margin: 1em 0;
+            border-radius: 8px;
+        }
+        .flash-success {
+            background-color: #55efc4;
+            color: #2d3436;
+        }
+        .flash-error {
+            background-color: #ff7675;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Gestion des catégories</h1>
+            <a href="{{ path('admin_categories_create') }}" class="btn">➕ Nouvelle catégorie</a>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="flash flash-success">{{ message }}</div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="flash flash-error">{{ message }}</div>
+        {% endfor %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Nombre de questions</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for categorie in categories %}
+                    <tr>
+                        <td>{{ categorie.id }}</td>
+                        <td>{{ categorie.nom }}</td>
+                        <td>{{ categorie.questions|length }}</td>
+                        <td>
+                            <a href="{{ path('admin_categories_edit', {'id': categorie.id}) }}" class="btn btn-warning">✏️ Modifier</a>
+                            <form action="{{ path('admin_categories_delete', {'id': categorie.id}) }}" method="post" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette catégorie ?')">
+                                <button type="submit" class="btn btn-danger">🗑️ Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="4" style="text-align: center;">Aucune catégorie trouvée</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div style="margin-top: 2em;">
+            <a href="{{ path('admin_users_list') }}" class="btn">👥 Gestion utilisateurs</a>
+            <a href="{{ path('admin_stats') }}" class="btn">📊 Statistiques</a>
+            <a href="{{ path('admin_email') }}" class="btn">📧 Envoyer des emails</a>
+        </div>
+    </div>
+</body>
+</html> 

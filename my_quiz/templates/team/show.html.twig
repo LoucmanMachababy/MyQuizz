@@ -1,0 +1,190 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ team.name }} - MyQuizz{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <!-- En-tête de l'équipe -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center mb-2">
+                                <h1 class="h2 mb-0 me-3">{{ team.name }}</h1>
+                                {% if is_owner %}
+                                <span class="badge bg-primary">Propriétaire</span>
+                                {% elseif is_member %}
+                                <span class="badge bg-success">Membre</span>
+                                {% endif %}
+                            </div>
+                            {% if team.description %}
+                            <p class="text-muted mb-3">{{ team.description }}</p>
+                            {% endif %}
+                            <div class="row text-center">
+                                <div class="col-3">
+                                    <div class="text-primary fw-bold fs-4">{{ team.points }}</div>
+                                    <small class="text-muted">Points totaux</small>
+                                </div>
+                                <div class="col-3">
+                                    <div class="text-success fw-bold fs-4">{{ team.quizzesCompleted }}</div>
+                                    <small class="text-muted">Quiz complétés</small>
+                                </div>
+                                <div class="col-3">
+                                    <div class="text-info fw-bold fs-4">{{ team.memberCount }}</div>
+                                    <small class="text-muted">Membres</small>
+                                </div>
+                                <div class="col-3">
+                                    <div class="text-warning fw-bold fs-4">{{ team.averageScore|number_format(1) }}%</div>
+                                    <small class="text-muted">Score moyen</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            {% if not is_member and team.isPublic %}
+                            <form method="POST" action="{{ path('team_join', {id: team.id}) }}" class="d-inline">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-plus"></i>
+                                    Rejoindre l'équipe
+                                </button>
+                            </form>
+                            {% elseif is_member and not is_owner %}
+                            <form method="POST" action="{{ path('team_leave', {id: team.id}) }}" class="d-inline">
+                                <button type="submit" class="btn btn-outline-danger" 
+                                        onclick="return confirm('Êtes-vous sûr de vouloir quitter cette équipe ?')">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Quitter l'équipe
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    {% if is_member %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="{{ path('team_quiz_create', {id: team.id}) }}" class="btn btn-primary btn-lg w-100 mb-2">
+                                <i class="fas fa-plus"></i>
+                                Créer un quiz
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            {% if team.inviteCode %}
+                            <div class="input-group">
+                                <input type="text" class="form-control" value="{{ team.inviteCode }}" readonly>
+                                <button class="btn btn-outline-secondary" type="button" onclick="copyInviteCode()">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Code d'invitation</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quiz actifs -->
+    {% if active_quizzes|length > 0 %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="h4 mb-3">
+                <i class="fas fa-play text-success"></i>
+                Quiz actifs
+            </h3>
+            <div class="row">
+                {% for quiz in active_quizzes %}
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ quiz.title }}</h5>
+                            <div class="d-grid">
+                                <a href="{{ path('team_quiz_play', {id: team.id, quizId: quiz.id}) }}" 
+                                   class="btn btn-success btn-sm">
+                                    <i class="fas fa-play"></i>
+                                    Jouer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quiz complétés -->
+    {% if completed_quizzes|length > 0 %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3 class="h4 mb-3">
+                <i class="fas fa-check-circle text-success"></i>
+                Quiz complétés
+            </h3>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Quiz</th>
+                            <th>Score moyen</th>
+                            <th>Participants</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quiz in completed_quizzes %}
+                        <tr>
+                            <td><strong>{{ quiz.title }}</strong></td>
+                            <td><span class="fw-bold text-primary">{{ quiz.averageParticipantScore|number_format(1) }}%</span></td>
+                            <td><span class="text-muted">{{ quiz.participantCount }}</span></td>
+                            <td><small class="text-muted">{{ quiz.completedAt|date('d/m/Y H:i') }}</small></td>
+                            <td>
+                                <a href="{{ path('team_quiz_results', {id: team.id, quizId: quiz.id}) }}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-chart-bar"></i>
+                                    Résultats
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function copyInviteCode() {
+    const inviteCode = '{{ team.inviteCode }}';
+    navigator.clipboard.writeText(inviteCode).then(function() {
+        const button = event.target.closest('button');
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-check"></i>';
+        button.classList.remove('btn-outline-secondary');
+        button.classList.add('btn-success');
+        
+        setTimeout(function() {
+            button.innerHTML = originalText;
+            button.classList.remove('btn-success');
+            button.classList.add('btn-outline-secondary');
+        }, 2000);
+    });
+}
+</script>
+{% endblock %} 

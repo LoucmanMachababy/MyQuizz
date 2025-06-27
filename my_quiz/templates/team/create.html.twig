@@ -1,0 +1,119 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer une équipe - MyQuizz{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="h4 mb-0">
+                        <i class="fas fa-plus"></i>
+                        Créer une nouvelle équipe
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">
+                                <i class="fas fa-users text-primary"></i>
+                                Nom de l'équipe *
+                            </label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   placeholder="Ex: Les Champions du Quiz" required>
+                            <div class="form-text">
+                                Choisissez un nom accrocheur pour votre équipe.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">
+                                <i class="fas fa-align-left text-primary"></i>
+                                Description
+                            </label>
+                            <textarea class="form-control" id="description" name="description" rows="4"
+                                      placeholder="Décrivez votre équipe, ses objectifs, etc."></textarea>
+                            <div class="form-text">
+                                Optionnel : Présentez votre équipe pour attirer de nouveaux membres.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="maxMembers" class="form-label">
+                                <i class="fas fa-user-plus text-primary"></i>
+                                Nombre maximum de membres
+                            </label>
+                            <select class="form-select" id="maxMembers" name="maxMembers">
+                                <option value="5">5 membres</option>
+                                <option value="10" selected>10 membres</option>
+                                <option value="15">15 membres</option>
+                                <option value="20">20 membres</option>
+                            </select>
+                            <div class="form-text">
+                                Limitez la taille de votre équipe pour une meilleure cohésion.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="isPublic" name="isPublic" checked>
+                                <label class="form-check-label" for="isPublic">
+                                    <i class="fas fa-globe text-success"></i>
+                                    Équipe publique
+                                </label>
+                                <div class="form-text">
+                                    Les équipes publiques sont visibles par tous et peuvent recevoir des demandes d'adhésion.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus"></i>
+                                Créer l'équipe
+                            </button>
+                            <a href="{{ path('team_index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i>
+                                Retour aux équipes
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Conseils -->
+            <div class="card border-0 shadow-sm mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="fas fa-lightbulb text-warning"></i>
+                        Conseils pour créer une équipe
+                    </h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Choisissez un nom court et mémorable
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Décrivez clairement les objectifs de l'équipe
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Commencez par une équipe publique pour attirer des membres
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Créez des quiz réguliers pour maintenir l'engagement
+                        </li>
+                        <li>
+                            <i class="fas fa-check text-success me-2"></i>
+                            Partagez le code d'invitation avec vos amis
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

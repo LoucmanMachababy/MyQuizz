@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Choisir le nombre de questions - {{ categorie.nom }}</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #9b6ef3;
+            color: white;
+            padding: 2em;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 1em;
+        }
+        .options {
+            display: flex;
+            gap: 1em;
+            justify-content: center;
+            margin: 2em 0;
+        }
+        .option {
+            background-color: #6c5ce7;
+            padding: 1em 2em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border: none;
+            color: white;
+            font-size: 1.1em;
+        }
+        .option:hover {
+            background-color: #5a4fcf;
+        }
+        .back-link {
+            color: white;
+            text-decoration: underline;
+            margin-top: 1em;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🎯 {{ categorie.nom }}</h2>
+        <p>Choisissez le nombre de questions pour ce quiz :</p>
+        
+        <div class="options">
+            <form action="{{ path('quiz_start', {'id': categorie.id}) }}" method="post" style="display: inline;">
+                <input type="hidden" name="question_count" value="10">
+                <button type="submit" class="option">
+                    🚀 10 Questions<br>
+                    <small>Quiz rapide</small>
+                </button>
+            </form>
+            
+            <form action="{{ path('quiz_start', {'id': categorie.id}) }}" method="post" style="display: inline;">
+                <input type="hidden" name="question_count" value="20">
+                <button type="submit" class="option">
+                    🏆 20 Questions<br>
+                    <small>Quiz complet</small>
+                </button>
+            </form>
+        </div>
+        
+        <p><small>Total disponible : {{ totalQuestions }} questions</small></p>
+        
+        <a href="{{ path('quiz_global') }}" class="back-link">← Retour aux catégories</a>
+    </div>
+</body>
+</html> 

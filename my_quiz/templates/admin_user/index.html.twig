@@ -2,47 +2,201 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Utilisateurs</title>
+    <title>Gestion des utilisateurs</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2em;
+        }
+        .header {
+            background-color: #9b6ef3;
+            color: white;
+            padding: 1em 2em;
+            border-radius: 15px;
+            margin-bottom: 2em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .btn {
+            background-color: #55efc4;
+            color: #2d3436;
+            padding: 0.4em 0.8em;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.2em;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        .btn-danger {
+            background-color: #ff7675;
+            color: white;
+        }
+        .btn-warning {
+            background-color: #fdcb6e;
+            color: #2d3436;
+        }
+        .btn-success {
+            background-color: #00b894;
+            color: white;
+        }
+        .btn-info {
+            background-color: #74b9ff;
+            color: white;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 0.75em;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #6c5ce7;
+            color: white;
+        }
+        .status-active {
+            color: #00b894;
+            font-weight: bold;
+        }
+        .status-inactive {
+            color: #ff7675;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #fdcb6e;
+            font-weight: bold;
+        }
+        .flash {
+            padding: 1em;
+            margin: 1em 0;
+            border-radius: 8px;
+        }
+        .flash-success {
+            background-color: #55efc4;
+            color: #2d3436;
+        }
+        .flash-error {
+            background-color: #ff7675;
+            color: white;
+        }
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.2em;
+        }
+    </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: sans-serif; background-color: #f4f4f4;">
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👥 Gestion des utilisateurs</h1>
+            <div>
+                <a href="{{ path('admin_categories_list') }}" class="btn">📚 Catégories</a>
+                <a href="{{ path('admin_stats') }}" class="btn">📊 Statistiques</a>
+                <a href="{{ path('admin_email') }}" class="btn">📧 Emails</a>
+            </div>
+        </div>
 
-<div style="display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 2em;">
-    <div style="background-color: #9b6ef3; color: white; padding: 2em; border-radius: 15px; width: 100%; max-width: 800px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+        {% for message in app.flashes('success') %}
+            <div class="flash flash-success">{{ message }}</div>
+        {% endfor %}
 
-        <h2 style="text-align: center; margin-bottom: 1em;">Liste des utilisateurs 👥</h2>
+        {% for message in app.flashes('error') %}
+            <div class="flash flash-error">{{ message }}</div>
+        {% endfor %}
 
-        <table style="width: 100%; border-collapse: collapse; background-color: white; color: black; border-radius: 10px; overflow: hidden;">
-            <thead style="background-color: #6c5ce7; color: white;">
+        <table>
+            <thead>
                 <tr>
-                    <th style="padding: 0.75em;">Email</th>
-                    <th style="padding: 0.75em;">Rôle(s)</th>
-                    <th style="padding: 0.75em;">Actions</th>
+                    <th>Email</th>
+                    <th>Statut</th>
+                    <th>Rôle(s)</th>
+                    <th>Dernière connexion</th>
+                    <th>Date d'inscription</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for user in users %}
-                    <tr style="text-align: center; border-bottom: 1px solid #ddd;">
-                        <td style="padding: 0.75em;">{{ user.email }}</td>
-                        <td style="padding: 0.75em;">{{ user.roles | join(', ') }}</td>
-                        <td style="padding: 0.75em;">
-                            {% if 'ROLE_ADMIN' not in user.roles %}
-                                <form action="{{ path('admin_users_promote', {'id': user.id}) }}" method="post" style="display:inline;">
-                                    <button type="submit" style="background-color: #55efc4; border: none; padding: 0.4em 0.8em; margin: 0 0.3em; border-radius: 8px; cursor: pointer;">Promouvoir admin</button>
-                                </form>
+                    <tr>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.isEmailConfirmed %}
+                                {% if user.isActive %}
+                                    <span class="status-active">✅ Actif</span>
+                                {% else %}
+                                    <span class="status-inactive">❌ Désactivé</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="status-pending">⏳ En attente</span>
                             {% endif %}
-
-                            <form action="{{ path('admin_users_delete', {id: user.id}) }}" method="post" onsubmit="return confirm('Supprimer cet utilisateur ?');" style="display:inline;">
-                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
-                                <button type="submit" style="background-color: #ff7675; border: none; padding: 0.4em 0.8em; margin: 0 0.3em; border-radius: 8px; cursor: pointer;">Supprimer</button>
-                            </form>
                         </td>
+                        <td>
+                            {% if 'ROLE_ADMIN' in user.roles %}
+                                <strong>👑 Admin</strong>
+                            {% else %}
+                                👤 Utilisateur
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.lastLoginAt %}
+                                {{ user.lastLoginAt|date('d/m/Y H:i') }}
+                            {% else %}
+                                <em>Jamais connecté</em>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.createdAt|date('d/m/Y') }}</td>
+                        <td>
+                            <div class="actions">
+                                {% if 'ROLE_ADMIN' not in user.roles %}
+                                    <form action="{{ path('admin_users_promote', {'id': user.id}) }}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-info">👑 Promouvoir</button>
+                                    </form>
+                                {% else %}
+                                    <form action="{{ path('admin_users_demote', {'id': user.id}) }}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-warning">👤 Rétrograder</button>
+                                    </form>
+                                {% endif %}
+
+                                {% if user.isActive %}
+                                    <form action="{{ path('admin_users_deactivate', {'id': user.id}) }}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-warning">❌ Désactiver</button>
+                                    </form>
+                                {% else %}
+                                    <form action="{{ path('admin_users_activate', {'id': user.id}) }}" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-success">✅ Activer</button>
+                                    </form>
+                                {% endif %}
+
+                                <form action="{{ path('admin_users_delete', {id: user.id}) }}" method="post" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')">
+                                    <button type="submit" class="btn btn-danger">🗑️ Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center;">Aucun utilisateur trouvé</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
-
     </div>
-</div>
-
 </body>
 </html>

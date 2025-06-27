@@ -1,0 +1,562 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ quiz.title }}{% endblock %}
+
+{% block body %}
+<style>
+    .quiz-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+        animation: fadeIn 0.8s ease;
+    }
+
+    .quiz-header {
+        background: var(--accent-gradient);
+        color: white;
+        padding: 2.5rem 2rem;
+        border-radius: 24px;
+        margin-bottom: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--card-shadow);
+    }
+
+    .quiz-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="brain" width="30" height="30" patternUnits="userSpaceOnUse"><circle cx="15" cy="15" r="2" fill="white" opacity="0.3"/><path d="M15 5 Q25 15 15 25 Q5 15 15 5" stroke="white" stroke-width="1" opacity="0.2" fill="none"/></pattern></defs><rect width="100" height="100" fill="url(%23brain)"/></svg>');
+        opacity: 0.3;
+    }
+
+    .quiz-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .quiz-description {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .progress-bar {
+        background: var(--bg-tertiary);
+        height: 8px;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .progress-fill {
+        background: var(--accent-gradient);
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+        position: relative;
+    }
+
+    .progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 2s infinite;
+    }
+
+    .question-card {
+        background: var(--bg-secondary);
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .question-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: var(--accent-gradient);
+        border-radius: 20px 20px 0 0;
+    }
+
+    .question-number {
+        color: var(--accent-color);
+        font-weight: 600;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .question-text {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 2rem;
+        line-height: 1.5;
+    }
+
+    .options-grid {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .option-btn {
+        background: var(--bg-primary);
+        border: 2px solid var(--border-color);
+        padding: 1.25rem 1.5rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        text-align: left;
+        font-size: 1rem;
+        color: var(--text-primary);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .option-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .option-btn:hover::before {
+        left: 100%;
+    }
+
+    .option-btn:hover {
+        border-color: var(--accent-color);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+    }
+
+    .option-btn.selected {
+        background: var(--accent-gradient);
+        color: white;
+        border-color: var(--accent-color);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .option-btn.correct {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border-color: #10b981;
+    }
+
+    .option-btn.incorrect {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border-color: #ef4444;
+    }
+
+    .explanation {
+        background: var(--bg-tertiary);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-top: 1.5rem;
+        border-left: 4px solid var(--accent-color);
+        display: none;
+    }
+
+    .explanation.show {
+        display: block;
+        animation: slideInUp 0.5s ease;
+    }
+
+    .explanation-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .explanation-text {
+        color: var(--text-secondary);
+        line-height: 1.6;
+    }
+
+    .navigation-buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .nav-btn {
+        background: var(--accent-gradient);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .nav-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        color: white;
+    }
+
+    .nav-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .results-summary {
+        background: var(--bg-secondary);
+        padding: 2.5rem;
+        border-radius: 20px;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .score-display {
+        font-size: 3rem;
+        font-weight: 700;
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+    }
+
+    .score-text {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+    }
+
+    .ai-suggestions {
+        background: var(--bg-tertiary);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-top: 1.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .ai-suggestions h3 {
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+        font-size: 1.2rem;
+    }
+
+    .suggestion-item {
+        background: var(--bg-secondary);
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border-left: 3px solid var(--accent-color);
+    }
+
+    .suggestion-title {
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .suggestion-description {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    @media (max-width: 768px) {
+        .quiz-container {
+            padding: 1rem;
+        }
+
+        .quiz-header {
+            padding: 2rem 1rem;
+        }
+
+        .quiz-title {
+            font-size: 1.8rem;
+        }
+
+        .question-card {
+            padding: 1.5rem;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+        }
+
+        .navigation-buttons {
+            flex-direction: column;
+        }
+
+        .nav-btn {
+            text-align: center;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="quiz-container">
+    <div class="quiz-header">
+        <h1 class="quiz-title">{{ quiz.title }}</h1>
+        <p class="quiz-description">{{ quiz.description }}</p>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+
+    <div id="quizContent">
+        {% for question in quiz.questions %}
+            <div class="question-card" id="question-{{ loop.index }}" style="display: {{ loop.first ? 'block' : 'none' }}">
+                <div class="question-number">
+                    <span>🤖 Question {{ loop.index }}/{{ quiz.questions|length }}</span>
+                </div>
+                
+                <div class="question-text">{{ question.question }}</div>
+                
+                <div class="options-grid">
+                    {% for option in question.options %}
+                        <button class="option-btn" 
+                                data-question="{{ loop.parent.loop.index }}" 
+                                data-option="{{ loop.index0 }}"
+                                data-correct="{{ question.correct_answer }}">
+                            <strong>{{ ['A', 'B', 'C', 'D'][loop.index0] }}.</strong> {{ option }}
+                        </button>
+                    {% endfor %}
+                </div>
+
+                <div class="explanation" id="explanation-{{ loop.index }}">
+                    <div class="explanation-title">
+                        <span>💡</span> Explication IA
+                    </div>
+                    <div class="explanation-text">{{ question.explanation }}</div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="navigation-buttons">
+        <button class="nav-btn" id="prevBtn" onclick="previousQuestion()" disabled>
+            ⬅️ Précédent
+        </button>
+        <button class="nav-btn" id="nextBtn" onclick="nextQuestion()" disabled>
+            Suivant ➡️
+        </button>
+    </div>
+
+    <div class="results-summary" id="resultsSummary" style="display: none;">
+        <div class="score-display" id="scoreDisplay"></div>
+        <div class="score-text" id="scoreText"></div>
+        
+        <div class="ai-suggestions" id="aiSuggestions">
+            <h3>🤖 Suggestions de révision IA</h3>
+            <div id="suggestionsContent">
+                <p>Chargement des suggestions personnalisées...</p>
+            </div>
+        </div>
+
+        <div class="navigation-buttons">
+            <a href="{{ path('ai_quiz_create') }}" class="nav-btn">
+                🚀 Nouveau Quiz
+            </a>
+            <a href="{{ path('quiz_global') }}" class="nav-btn">
+                🎮 Autres Quiz
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentQuestion = 1;
+    let totalQuestions = {{ quiz.questions|length }};
+    let userAnswers = {};
+    let wrongAnswers = [];
+
+    function updateProgress() {
+        const progress = (currentQuestion / totalQuestions) * 100;
+        document.getElementById('progressFill').style.width = progress + '%';
+    }
+
+    function showQuestion(questionNumber) {
+        // Cacher toutes les questions
+        for (let i = 1; i <= totalQuestions; i++) {
+            document.getElementById(`question-${i}`).style.display = 'none';
+        }
+        
+        // Afficher la question actuelle
+        document.getElementById(`question-${questionNumber}`).style.display = 'block';
+        
+        // Mettre à jour les boutons
+        document.getElementById('prevBtn').disabled = questionNumber === 1;
+        document.getElementById('nextBtn').disabled = questionNumber === totalQuestions;
+        
+        updateProgress();
+    }
+
+    function previousQuestion() {
+        if (currentQuestion > 1) {
+            currentQuestion--;
+            showQuestion(currentQuestion);
+        }
+    }
+
+    function nextQuestion() {
+        if (currentQuestion < totalQuestions) {
+            currentQuestion++;
+            showQuestion(currentQuestion);
+        }
+    }
+
+    function selectOption(button) {
+        const questionNumber = parseInt(button.dataset.question);
+        const selectedOption = parseInt(button.dataset.option);
+        const correctAnswer = parseInt(button.dataset.correct);
+        
+        // Désélectionner les autres options de cette question
+        const questionCard = button.closest('.question-card');
+        questionCard.querySelectorAll('.option-btn').forEach(btn => {
+            btn.classList.remove('selected');
+        });
+        
+        // Sélectionner cette option
+        button.classList.add('selected');
+        
+        // Sauvegarder la réponse
+        userAnswers[questionNumber] = selectedOption;
+        
+        // Activer le bouton suivant
+        document.getElementById('nextBtn').disabled = false;
+        
+        // Si c'est la dernière question, changer le texte du bouton
+        if (questionNumber === totalQuestions) {
+            document.getElementById('nextBtn').textContent = 'Voir les résultats 🏆';
+            document.getElementById('nextBtn').onclick = showResults;
+        }
+    }
+
+    function showResults() {
+        // Calculer le score
+        let correctAnswers = 0;
+        wrongAnswers = [];
+        
+        for (let i = 1; i <= totalQuestions; i++) {
+            const questionCard = document.getElementById(`question-${i}`);
+            const correctAnswer = parseInt(questionCard.querySelector('.option-btn').dataset.correct);
+            const userAnswer = userAnswers[i];
+            
+            if (userAnswer === correctAnswer) {
+                correctAnswers++;
+            } else {
+                wrongAnswers.push(`Question ${i}: ${questionCard.querySelector('.question-text').textContent}`);
+            }
+            
+            // Afficher les bonnes/mauvaises réponses
+            questionCard.querySelectorAll('.option-btn').forEach((btn, index) => {
+                if (index === correctAnswer) {
+                    btn.classList.add('correct');
+                } else if (index === userAnswer && userAnswer !== correctAnswer) {
+                    btn.classList.add('incorrect');
+                }
+            });
+            
+            // Afficher l'explication
+            questionCard.querySelector('.explanation').classList.add('show');
+        }
+        
+        const score = Math.round((correctAnswers / totalQuestions) * 100);
+        
+        // Afficher le résumé
+        document.getElementById('scoreDisplay').textContent = `${score}%`;
+        document.getElementById('scoreText').textContent = 
+            `Vous avez répondu correctement à ${correctAnswers} question${correctAnswers > 1 ? 's' : ''} sur ${totalQuestions}`;
+        
+        document.getElementById('resultsSummary').style.display = 'block';
+        document.getElementById('quizContent').style.display = 'none';
+        document.querySelector('.navigation-buttons').style.display = 'none';
+        
+        // Générer les suggestions IA
+        generateAISuggestions();
+    }
+
+    async function generateAISuggestions() {
+        try {
+            const response = await fetch('{{ path("ai_quiz_suggestions") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    wrongAnswers: wrongAnswers,
+                    topic: '{{ topic }}'
+                })
+            });
+
+            const data = await response.json();
+            const suggestions = data.suggestions || [];
+            
+            let suggestionsHtml = '';
+            suggestions.forEach(suggestion => {
+                suggestionsHtml += `
+                    <div class="suggestion-item">
+                        <div class="suggestion-title">${suggestion.title}</div>
+                        <div class="suggestion-description">${suggestion.description}</div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('suggestionsContent').innerHTML = suggestionsHtml;
+        } catch (error) {
+            console.error('Erreur lors de la génération des suggestions:', error);
+            document.getElementById('suggestionsContent').innerHTML = 
+                '<p>Suggestions non disponibles pour le moment.</p>';
+        }
+    }
+
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ajouter les event listeners aux boutons d'options
+        document.querySelectorAll('.option-btn').forEach(button => {
+            button.addEventListener('click', () => selectOption(button));
+        });
+        
+        updateProgress();
+    });
+</script>
+{% endblock %} 

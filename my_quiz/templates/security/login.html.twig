@@ -1,55 +1,360 @@
+{% extends 'base.html.twig' %}
 
-<title>Connexion</title>
+{% block title %}Connexion{% endblock %}
 
 {% block body %}
-<div style="margin: 0; padding: 0; font-family: sans-serif; background-color: #f4f4f4; height: 100vh; display: flex; justify-content: center; align-items: center;">
-    <div style="background-color: #9b6ef3; color: white; padding: 2em; border-radius: 15px; max-width: 400px; width: 90%; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
-        <h1 style="text-align: center; margin-bottom: 1em;">Connexion 🔐</h1>
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 2rem;
+        animation: fadeIn 0.8s ease;
+    }
 
-        {% if error %}
-            <div style="background-color: #ffcccc; color: #900; padding: 0.5em 1em; border-radius: 8px; margin-bottom: 1em; text-align: center; font-weight: 600;">
-                {{ error.messageKey|trans(error.messageData, 'security') }}
+    .login-card {
+        background: var(--bg-secondary);
+        padding: 3rem;
+        border-radius: 24px;
+        max-width: 500px;
+        width: 100%;
+        box-shadow: var(--card-shadow);
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .login-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--accent-gradient);
+        border-radius: 24px 24px 0 0;
+    }
+
+    .login-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--card-shadow-hover);
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .login-title {
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.02em;
+    }
+
+    .login-subtitle {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid var(--border-color);
+        border-radius: 12px;
+        font-size: 1rem;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-sizing: border-box;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .form-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .form-error {
+        color: var(--error-color);
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-error::before {
+        content: '⚠️';
+    }
+
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+
+    .checkbox-input {
+        width: 1.2rem;
+        height: 1.2rem;
+        accent-color: var(--accent-color);
+        cursor: pointer;
+    }
+
+    .checkbox-label {
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .submit-btn {
+        width: 100%;
+        background: var(--accent-gradient);
+        color: white;
+        border: none;
+        padding: 1.25rem 2rem;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 1.5rem;
+    }
+
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .submit-btn:hover::before {
+        left: 100%;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+    }
+
+    .submit-btn:active {
+        transform: translateY(-1px);
+    }
+
+    .links-section {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--border-color);
+    }
+
+    .auth-link {
+        color: var(--accent-color);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        background: rgba(102, 126, 234, 0.1);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        margin: 0.5rem;
+    }
+
+    .auth-link:hover {
+        background: rgba(102, 126, 234, 0.2);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        color: var(--accent-color);
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .password-toggle:hover {
+        color: var(--accent-color);
+        background: rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group.password-group {
+        position: relative;
+    }
+
+    .form-group.password-group .form-input {
+        padding-right: 3rem;
+    }
+
+    @media (max-width: 768px) {
+        .login-container {
+            padding: 1rem;
+        }
+
+        .login-card {
+            padding: 2rem;
+            border-radius: 20px;
+        }
+
+        .login-title {
+            font-size: 2rem;
+        }
+
+        .submit-btn {
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .login-card {
+            padding: 1.5rem;
+            margin: 0.5rem;
+        }
+
+        .login-title {
+            font-size: 1.75rem;
+        }
+
+        .auth-link {
+            display: block;
+            margin: 0.5rem 0;
+        }
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1 class="login-title">🔑 Connexion</h1>
+            <p class="login-subtitle">Connectez-vous à votre compte</p>
+        </div>
+
+        <form method="post">
+            {% if error %}
+                <div class="form-error">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="inputEmail" class="form-label">📧 Adresse email</label>
+                <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-input" placeholder="votre@email.com" required autofocus>
             </div>
-        {% endif %}
 
-        <form method="POST" action="{{ path('app_login') }}" style="display: flex; flex-direction: column;">
-            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <div class="form-group password-group">
+                <label for="inputPassword" class="form-label">🔒 Mot de passe</label>
+                <input type="password" name="password" id="inputPassword" class="form-input" placeholder="Votre mot de passe" required>
+                <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+            </div>
 
-            <label for="email" style="font-weight: 600; margin-bottom: 0.3em;">Email :</label>
-            <input
-                type="email"
-                id="email"
-                name="email"
-                value="{{ last_username }}"
-                required
-                autofocus
-                autocomplete="email"
-                style="width: 100%; padding: 0.5em; border: none; border-radius: 8px; margin-bottom: 1em; font-size: 1em;"
-            >
+            <div class="checkbox-group">
+                <input type="checkbox" id="remember_me" name="_remember_me" class="checkbox-input">
+                <label for="remember_me" class="checkbox-label">Se souvenir de moi</label>
+            </div>
 
-            <label for="password" style="font-weight: 600; margin-bottom: 0.3em;">Mot de passe :</label>
-            <input
-                type="password"
-                id="password"
-                name="password"
-                required
-                autocomplete="current-password"
-                style="width: 100%; padding: 0.5em; border: none; border-radius: 8px; margin-bottom: 1em; font-size: 1em;"
-            >
-
-            <label style="font-weight: 600; margin-bottom: 1em;">
-                <input type="checkbox" name="_remember_me" style="margin-right: 0.4em;">
-                Se souvenir de moi
-            </label>
-
-            <button type="submit" style="background: white; color: #6c5ce7; padding: 0.7em; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1em;">
-                Se connecter
+            <button class="submit-btn" type="submit">
+                🚀 Se connecter
             </button>
-
-            <div style="text-align: center; margin-top: 1em;">
-                <a href="{{ path('app_register') }}" style="color: white; text-decoration: underline;">Créer un compte</a>
-            </div>
         </form>
+
+        <div class="links-section">
+            <a href="{{ path('app_register') }}" class="auth-link">
+                📝 Créer un compte
+            </a>
+            <a href="{{ path('quiz_global') }}" class="auth-link">
+                🎮 Continuer sans compte
+            </a>
+        </div>
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById('inputPassword');
+        const toggleBtn = document.querySelector('.password-toggle');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            toggleBtn.textContent = '🙈';
+        } else {
+            passwordInput.type = 'password';
+            toggleBtn.textContent = '👁️';
+        }
+    }
+
+    // Animation d'entrée pour les éléments du formulaire
+    document.addEventListener('DOMContentLoaded', function() {
+        const formElements = document.querySelectorAll('.form-group, .checkbox-group, .submit-btn, .links-section');
+        
+        formElements.forEach((el, index) => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                el.style.opacity = '1';
+                el.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+
+    // Validation en temps réel
+    document.querySelectorAll('.form-input').forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.value.trim() === '') {
+                this.style.borderColor = 'var(--error-color)';
+            } else {
+                this.style.borderColor = 'var(--accent-color)';
+            }
+        });
+
+        input.addEventListener('input', function() {
+            if (this.value.trim() !== '') {
+                this.style.borderColor = 'var(--accent-color)';
+            }
+        });
+    });
+</script>
 {% endblock %}

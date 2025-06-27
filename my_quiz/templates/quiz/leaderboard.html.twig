@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Classement - Top 10{% endblock %}
+
+{% block body %}
+<div style="max-width: 900px; margin: 0 auto; padding: 2rem;">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 2rem; border-radius: 15px; margin-bottom: 2rem; text-align: center;">
+        <h1>🏆 Classement des Meilleurs Joueurs</h1>
+        <p style="font-size: 1.1em; margin: 0;">Découvrez qui domine le classement !</p>
+    </div>
+
+    <!-- Statistiques globales -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <div style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="font-size: 2em; color: #667eea;">{{ totalUsers }}</div>
+            <div style="color: #666; font-weight: bold;">Utilisateurs totaux</div>
+        </div>
+        
+        <div style="background: white; padding: 1.5rem; border-radius: 10px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <div style="font-size: 2em; color: #667eea;">{{ activeUsers }}</div>
+            <div style="color: #666; font-weight: bold;">Joueurs actifs</div>
+        </div>
+    </div>
+
+    <!-- Classement -->
+    <div style="background: white; padding: 2rem; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #333; margin-bottom: 1.5rem; text-align: center;">🥇 Top 10 des Joueurs</h2>
+        
+        {% if topPlayers is empty %}
+            <p style="text-align: center; color: #666; font-style: italic;">Aucun joueur n'a encore gagné de points. Soyez le premier !</p>
+        {% else %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 1em;">
+                    <thead>
+                        <tr style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <th style="padding: 1rem; text-align: center; border-radius: 8px 0 0 0;">Rang</th>
+                            <th style="padding: 1rem; text-align: left;">Joueur</th>
+                            <th style="padding: 1rem; text-align: center;">Points</th>
+                            <th style="padding: 1rem; text-align: center;">Quiz</th>
+                            <th style="padding: 1rem; text-align: center; border-radius: 0 8px 0 0;">Badges</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in topPlayers %}
+                            <tr style="{% if loop.index == 1 %}background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);{% elseif loop.index == 2 %}background: linear-gradient(135deg, #c0c0c0 0%, #e5e5e5 100%);{% elseif loop.index == 3 %}background: linear-gradient(135deg, #cd7f32 0%, #daa520 100%);{% else %}border-bottom: 1px solid #eee;{% endif %}">
+                                <td style="padding: 1rem; text-align: center; font-weight: bold; font-size: 1.2em;">
+                                    {% if loop.index == 1 %}🥇{% elseif loop.index == 2 %}🥈{% elseif loop.index == 3 %}🥉{% else %}#{{ loop.index }}{% endif %}
+                                </td>
+                                <td style="padding: 1rem; text-align: left;">
+                                    <div style="font-weight: bold;">{{ player.email|split('@')[0] }}</div>
+                                    <div style="font-size: 0.9em; color: #666;">{{ player.email }}</div>
+                                </td>
+                                <td style="padding: 1rem; text-align: center; font-weight: bold; font-size: 1.1em;">
+                                    {{ player.points|number_format(0, ',', ' ') }}
+                                </td>
+                                <td style="padding: 1rem; text-align: center;">
+                                    {{ player.quizzesCompleted }}
+                                </td>
+                                <td style="padding: 1rem; text-align: center;">
+                                    {{ player.badges|length }}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Liens rapides -->
+    <div style="text-align: center; margin-top: 2rem;">
+        <a href="{{ path('quiz_global') }}" style="display: inline-block; background: #667eea; color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 10px; margin: 0.5rem;">🎮 Jouer aux Quiz</a>
+        <a href="{{ path('account_profile') }}" style="display: inline-block; background: #667eea; color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 10px; margin: 0.5rem;">👤 Mon Profil</a>
+        <a href="{{ path('quiz_history') }}" style="display: inline-block; background: #667eea; color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 10px; margin: 0.5rem;">📊 Mon Historique</a>
+    </div>
+</div>
+{% endblock %} 

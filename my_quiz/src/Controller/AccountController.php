@@ -13,6 +13,7 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use App\Service\QuizRewardService;
 
 
 class AccountController extends AbstractController
@@ -76,24 +77,50 @@ class AccountController extends AbstractController
 
     #[Route('/account/password', name: 'account_password')]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
-    public function changePassword(Request $request, UserPasswordHasherInterface $hasher, EntityManagerInterface $em): Response
+    public function changePassword(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $em): Response
     {
-        $user = $this->getUser();
-
         if ($request->isMethod('POST')) {
-            $password = $request->request->get('password');
+            $currentPassword = $request->request->get('current_password');
+            $newPassword = $request->request->get('new_password');
+            $confirmPassword = $request->request->get('confirm_password');
 
-            if ($password && strlen($password) >= 6) {
-                $hashedPassword = $hasher->hashPassword($user, $password);
-                $user->setPassword($hashedPassword);
-                $em->flush();
+            $user = $this->getUser();
 
-                $this->addFlash('success', 'Mot de passe modifié avec succès.');
-            } else {
-                $this->addFlash('error', 'Le mot de passe doit faire au moins 6 caractères.');
+            if (!$passwordHasher->isPasswordValid($user, $currentPassword)) {
+                $this->addFlash('error', 'Le mot de passe actuel est incorrect.');
+                return $this->redirectToRoute('account_password');
             }
+
+            if ($newPassword !== $confirmPassword) {
+                $this->addFlash('error', 'Les nouveaux mots de passe ne correspondent pas.');
+                return $this->redirectToRoute('account_password');
+            }
+
+            if (strlen($newPassword) < 6) {
+                $this->addFlash('error', 'Le nouveau mot de passe doit contenir au moins 6 caractères.');
+                return $this->redirectToRoute('account_password');
+            }
+
+            $user->setPassword($passwordHasher->hashPassword($user, $newPassword));
+            $em->flush();
+
+            $this->addFlash('success', 'Mot de passe modifié avec succès !');
+            return $this->redirectToRoute('account_password');
         }
 
         return $this->render('accountsettings/change_password.html.twig');
+    }
+
+    #[Route('/account/profile', name: 'account_profile')]
+    #[IsGranted('IS_AUTHENTICATED_FULLY')]
+    public function profile(QuizRewardService $rewardService): Response
+    {
+        $user = $this->getUser();
+        $badgeInfo = $rewardService->getBadgeInfo();
+        
+        return $this->render('accountsettings/profile.html.twig', [
+            'user' => $user,
+            'badgeInfo' => $badgeInfo
+        ]);
     }
 }

@@ -1,60 +1,543 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Mon Quiz{% endblock %}</title>
-</head>
-<body style="margin:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background:#f9f9fb; color:#333;">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Mode clair */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --nav-bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --nav-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.12);
+            --border-color: #e2e8f0;
+            --accent-color: #667eea;
+            --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-color: #10b981;
+            --error-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
 
-    <nav style="background:#6c5ce7; padding:1rem 2rem; display:flex; justify-content:center; gap:1.5rem; box-shadow:0 2px 8px rgba(108,92,231,0.3); flex-wrap:wrap;">
-        <a href="{{ path('quiz_global') }}" title="Accéder aux quiz" style="color:#fff; text-decoration:none; font-weight:600; padding:0.5rem 1rem; border-radius:6px; border:2px solid transparent; transition: all 0.3s ease;">Quiz</a>
+        [data-theme="dark"] {
+            /* Mode sombre */
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #64748b;
+            --nav-bg: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --nav-shadow: 0 4px 20px rgba(79, 70, 229, 0.4);
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            --card-shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.4);
+            --border-color: #334155;
+            --accent-color: #8b5cf6;
+            --accent-gradient: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%);
+            --glass-bg: rgba(30, 41, 59, 0.8);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        * {
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Bouton de thème */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--accent-gradient);
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(180deg);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--nav-bg);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            box-shadow: var(--nav-shadow);
+            flex-wrap: wrap;
+            position: relative;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        nav a, nav button {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.75rem 1.25rem;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            font-size: 0.95rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        nav a::before, nav button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        nav a:hover::before, nav button:hover::before {
+            left: 100%;
+        }
+
+        nav a:hover, nav button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Messages flash */
+        .flash-message {
+            margin: 1rem auto;
+            padding: 1rem 1.5rem;
+            max-width: 600px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            animation: slideInDown 0.6s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--card-shadow);
+        }
+
+        .flash-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+            color: var(--success-color);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .flash-error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.05) 100%);
+            color: var(--error-color);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .flash-info {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+            color: var(--info-color);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .flash-warning {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+            color: var(--warning-color);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        /* Contenu principal */
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        /* Animations */
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
+
+        .bounce {
+            animation: bounce 1s ease;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            background-size: 200px 100%;
+            animation: shimmer 2s infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            main {
+                max-width: 900px;
+                padding: 0 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+
+            nav a, nav button {
+                padding: 0.6rem 1rem;
+                font-size: 0.9em;
+                border-radius: 10px;
+            }
+
+            main {
+                padding: 0 1rem;
+                margin: 1.5rem auto;
+            }
+
+            .theme-toggle {
+                top: 15px;
+                right: 15px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.1em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            nav {
+                flex-direction: column;
+                align-items: center;
+                padding: 1rem 0.5rem;
+            }
+
+            nav a, nav button {
+                width: 90%;
+                text-align: center;
+                margin: 0.2rem 0;
+                padding: 0.8rem 1rem;
+            }
+
+            main {
+                padding: 0 0.5rem;
+                margin: 1rem auto;
+            }
+
+            .flash-message {
+                margin: 0.5rem;
+                border-radius: 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Scrollbar personnalisée */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--accent-gradient);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+
+        /* Sélection de texte */
+        ::selection {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        /* Focus visible */
+        *:focus {
+            outline: 2px solid var(--accent-color);
+            outline-offset: 2px;
+        }
+
+        /* Loading states */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--accent-color);
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Changer de thème">
+        <span id="theme-icon">🌙</span>
+    </button>
+
+    <nav>
+        <a href="{{ path('quiz_global') }}" title="Accéder aux quiz">🎮 Quiz</a>
+        <a href="{{ path('ai_quiz_create') }}" title="Créer un quiz avec IA">🤖 Quiz IA</a>
         {% if app.user %}
-            <a href="{{ path('quiz_create') }}" title="Créer un quiz quiz" style="color:#fff; text-decoration:none; font-weight:600; padding:0.5rem 1rem; border-radius:6px; border:2px solid transparent; transition: all 0.3s ease;">Créer</a>
-            <a href="{{ path('account_email') }}" title="Changer votre adresse email" style="color:#fff; text-decoration:none; font-weight:600; padding:0.5rem 1rem; border-radius:6px; border:2px solid transparent; transition: all 0.3s ease;">Changer email</a>
-            <a href="{{ path('account_password') }}" title="Modifier votre mot de passe" style="color:#fff; text-decoration:none; font-weight:600; padding:0.5rem 1rem; border-radius:6px; border:2px solid transparent; transition: all 0.3s ease;">Changer mot de passe</a>
-            <a href="{{ path('app_logout') }}" title="Se déconnecter" style="color:#fff; text-decoration:none; font-weight:600; padding:0.5rem 1rem; border-radius:6px; border:2px solid transparent; transition: all 0.3s ease;">Déconnexion</a>
+            <a href="{{ path('team_index') }}" title="Équipes multijoueur">👥 Équipes</a>
+            <a href="{{ path('challenge_index') }}" title="Défis entre amis">⚔️ Défis</a>
+        {% endif %}
+        <a href="{{ path('quiz_leaderboard') }}" title="Voir le classement">🏆 Classement</a>
+        {% if app.user %}
+            <a href="{{ path('quiz_create') }}" title="Créer un quiz">✨ Créer</a>
+            <a href="{{ path('account_profile') }}" title="Mon profil">👤 Profil</a>
+            <a href="{{ path('account_email') }}" title="Changer votre adresse email">📧 Email</a>
+            <a href="{{ path('account_password') }}" title="Modifier votre mot de passe">🔒 Mot de passe</a>
+            <form action="{{ path('app_logout') }}" method="post" style="display:inline; margin:0; padding:0;">
+                <button type="submit">🚪 Déconnexion</button>
+            </form>
         {% else %}
-            <a href="{{ path('app_login') }}" title="Se connecter" style="color:#fff; text-decoration:none; font-weight:600; padding:0.5rem 1rem; border-radius:6px; border:2px solid transparent; transition: all 0.3s ease;">Connexion</a>
-            <a href="{{ path('app_register') }}" title="Créer un compte" style="color:#fff; text-decoration:none; font-weight:600; padding:0.5rem 1rem; border-radius:6px; border:2px solid transparent; transition: all 0.3s ease;">Inscription</a>
+            <a href="{{ path('app_login') }}" title="Se connecter">🔑 Connexion</a>
+            <a href="{{ path('app_register') }}" title="Créer un compte">📝 Inscription</a>
         {% endif %}
     </nav>
 
     {% for label, messages in app.flashes %}
         {% for message in messages %}
-            <div style="
-                margin: 1rem auto;
-                padding: 1rem 1.5rem;
-                max-width: 600px;
-                border-radius: 4px;
-                font-size: 0.95rem;
-                background-color: {% if label == 'success' %}#d4edda{% elseif label == 'error' %}#f8d7da{% elseif label == 'info' %}#d1ecf1{% elseif label == 'warning' %}#fff3cd{% else %}#f0f0f0{% endif %};
-                color: {% if label == 'success' %}#155724{% elseif label == 'error' %}#721c24{% elseif label == 'info' %}#0c5460{% elseif label == 'warning' %}#856404{% else %}#333{% endif %};
-                border-left: 5px solid {% if label == 'success' %}#28a745{% elseif label == 'error' %}#dc3545{% elseif label == 'info' %}#17a2b8{% elseif label == 'warning' %}#ffc107{% else %}gray{% endif %};
-            ">
+            <div class="flash-message flash-{{ label }}">
                 {{ message }}
             </div>
         {% endfor %}
     {% endfor %}
 
-    <main style="max-width: 900px; margin: 2rem auto; padding: 0 1rem;">
+    <main>
         {% block body %}{% endblock %}
     </main>
 
     <script>
-        // Hover effect en inline impossible en CSS, donc on utilise JS pour animer nav links
-        document.querySelectorAll('nav a').forEach(link => {
-            link.addEventListener('mouseenter', () => {
-                link.style.backgroundColor = 'white';
-                link.style.color = '#6c5ce7';
-                link.style.borderColor = '#6c5ce7';
+        // Gestion du thème
+        function toggleTheme() {
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            themeIcon.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+            
+            // Sauvegarder la préférence
+            localStorage.setItem('theme', newTheme);
+            
+            // Animation de transition
+            document.body.style.transition = 'all 0.3s ease';
+        }
+
+        // Charger le thème sauvegardé
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            const html = document.documentElement;
+            const themeIcon = document.getElementById('theme-icon');
+            
+            html.setAttribute('data-theme', savedTheme);
+            themeIcon.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Effets de hover améliorés avec parallax
+        document.querySelectorAll('nav a, nav button').forEach(link => {
+            link.addEventListener('mouseenter', (e) => {
+                const rect = link.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                link.style.transform = `translateY(-3px) scale(1.05) perspective(1000px) rotateX(${(y - rect.height/2)/10}deg) rotateY(${(x - rect.width/2)/10}deg)`;
             });
+            
             link.addEventListener('mouseleave', () => {
-                link.style.backgroundColor = 'transparent';
-                link.style.color = 'white';
-                link.style.borderColor = 'transparent';
+                link.style.transform = 'translateY(0) scale(1) perspective(1000px) rotateX(0deg) rotateY(0deg)';
             });
         });
-    </script>
 
+        // Animations au chargement avec stagger
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTheme();
+            
+            // Animation d'entrée pour les éléments
+            const elements = document.querySelectorAll('nav a, nav button, main > *');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    el.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+
+            // Animation des messages flash
+            document.querySelectorAll('.flash-message').forEach((message, index) => {
+                setTimeout(() => {
+                    message.style.animation = 'slideInDown 0.6s ease';
+                }, index * 200);
+            });
+        });
+
+        // Notifications push (si supporté)
+        if ('Notification' in window) {
+            if (Notification.permission === 'default') {
+                Notification.requestPermission();
+            }
+        }
+
+        // Service Worker pour les notifications
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => console.log('SW registered'))
+                .catch(error => console.log('SW registration failed'));
+        }
+
+        // Smooth scroll pour les ancres
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Intersection Observer pour les animations au scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observer tous les éléments avec la classe 'animate-on-scroll'
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
+    </script>
 </body>
 </html>

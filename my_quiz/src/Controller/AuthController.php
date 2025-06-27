@@ -11,6 +11,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AuthController extends AbstractController
 {
@@ -22,7 +25,15 @@ class AuthController extends AbstractController
             $password = $request->request->get('password');
 
             if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($password) < 6) {
-                return new Response('Email ou mdp incorrect.', 400);
+                $this->addFlash('error', 'Email ou mot de passe incorrect.');
+                return $this->redirectToRoute('app_register');
+            }
+
+            // Vérifier si l'email existe déjà
+            $existingUser = $em->getRepository(User::class)->findOneBy(['email' => $email]);
+            if ($existingUser) {
+                $this->addFlash('error', 'Cet email est déjà utilisé.');
+                return $this->redirectToRoute('app_register');
             }
 
             $user = new User();
@@ -42,11 +53,17 @@ class AuthController extends AbstractController
                 ->from('no-reply@myquizz.com')
                 ->to($email)
                 ->subject('Confirme ton email')
-                ->text("Clique ici pour confirmer ton email : $url");
+                ->html("
+                    <h2>Bienvenue sur MyQuiz !</h2>
+                    <p>Cliquez sur le lien suivant pour confirmer votre adresse email :</p>
+                    <a href='$url'>Confirmer mon email</a>
+                    <p>Si le lien ne fonctionne pas, copiez cette URL dans votre navigateur : $url</p>
+                ");
 
             $mailer->send($emailMessage);
 
-            return new Response('Vous êtes inscrit. Vérifiez votre email pour confirmer.');
+            $this->addFlash('success', 'Inscription réussie ! Vérifiez votre email pour confirmer votre compte.');
+            return $this->redirectToRoute('app_login');
         }
 
         return $this->render('auth/register.html.twig');
@@ -58,55 +75,37 @@ class AuthController extends AbstractController
         $user = $em->getRepository(User::class)->findOneBy(['confirmationToken' => $token]);
 
         if (!$user) {
-            return new Response('Lien invalide.', 404);
+            $this->addFlash('error', 'Lien de confirmation invalide.');
+            return $this->redirectToRoute('app_login');
         }
 
         $user->setEmailConfirmed(true);
         $user->setConfirmationToken(null);
         $em->flush();
 
-        return new Response('Email confirmé, vous pouvez maintenant vous connecter.');
+        $this->addFlash('success', 'Email confirmé ! Vous pouvez maintenant vous connecter.');
+        return $this->redirectToRoute('app_login');
     }
 
     #[Route('/login', name: 'app_login')]
-    public function login(Request $request, EntityManagerInterface $em): Response
+    public function login(AuthenticationUtils $authenticationUtils): Response
     {
-
-        if ($request->isMethod('POST')) {
-            $email = $request->request->get('email');
-            $password = $request->request->get('password');
-
-            $user = $em->getRepository(User::class)->findOneBy(['email' => $email]);
-
-            if (!$user || !password_verify($password, $user->getPassword())) {
-                return $this->render('auth/login.html.twig', [
-                    'error' => 'mdp ou mail incorrects',
-                ]);
-            }
-
-            if (!$user->isEmailConfirmed()) {
-                return $this->render('auth/login.html.twig', [
-                    'error' => 'Veuillez confirmer votre adresse email.',
-                ]);
-            }
-
-            $session = $request->getSession();
-            $session->set('user_id', $user->getId());
-
-            return $this->redirectToRoute('quiz_global');
-        }
+        $error = $authenticationUtils->getLastAuthenticationError();
+        $lastUsername = $authenticationUtils->getLastUsername();
 
         return $this->render('auth/login.html.twig', [
-            'error' => null,
+            'last_username' => $lastUsername,
+            'error' => $error,
         ]);
-
     }
 
-    #[Route('/logout', name: 'app_logout')]
-public function logout(Request $request): Response
-{
-    $session = $request->getSession();
-    $session->invalidate(); 
-    return $this->redirectToRoute('app_login'); 
-}
+    #[Route('/logout', name: 'app_logout', methods: ['GET', 'POST'])]
+    public function logout(TokenStorageInterface $tokenStorage, SessionInterface $session): Response
+    {
+        // Déconnexion manuelle
+        $tokenStorage->setToken(null);
+        $session->invalidate();
+        
+        return $this->redirectToRoute('app_login');
+    }
 }

@@ -1,0 +1,269 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Défis - MyQuizz{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h2 mb-0">
+                    <i class="fas fa-sword text-primary"></i>
+                    Défis
+                </h1>
+                <a href="{{ path('challenge_create') }}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Lancer un défi
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Défis en attente -->
+    {% if pending_challenges|length > 0 %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="h4 mb-3">
+                <i class="fas fa-clock text-warning"></i>
+                Défis en attente
+            </h3>
+            <div class="row">
+                {% for challenge in pending_challenges %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">{{ challenge.title }}</h5>
+                                <span class="badge bg-warning">En attente</span>
+                            </div>
+                            {% if challenge.description %}
+                            <p class="card-text text-muted small">{{ challenge.description }}</p>
+                            {% endif %}
+                            <div class="row text-center mb-3">
+                                <div class="col-4">
+                                    <div class="text-primary fw-bold">{{ challenge.questionCount }}</div>
+                                    <small class="text-muted">Questions</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-info fw-bold">{{ challenge.difficulty|title }}</div>
+                                    <small class="text-muted">Difficulté</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-success fw-bold">{{ challenge.timeLimitFormatted }}</div>
+                                    <small class="text-muted">Temps</small>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('challenge_show', {id: challenge.id}) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                    Voir le défi
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Défis actifs -->
+    {% if active_challenges|length > 0 %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="h4 mb-3">
+                <i class="fas fa-play text-success"></i>
+                Défis actifs
+            </h3>
+            <div class="row">
+                {% for challenge in active_challenges %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title mb-0">{{ challenge.title }}</h5>
+                                <span class="badge bg-success">Actif</span>
+                            </div>
+                            {% if challenge.description %}
+                            <p class="card-text text-muted small">{{ challenge.description }}</p>
+                            {% endif %}
+                            <div class="row text-center mb-3">
+                                <div class="col-4">
+                                    <div class="text-primary fw-bold">{{ challenge.questionCount }}</div>
+                                    <small class="text-muted">Questions</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-info fw-bold">{{ challenge.difficulty|title }}</div>
+                                    <small class="text-muted">Difficulté</small>
+                                </div>
+                                <div class="col-4">
+                                    <div class="text-success fw-bold">{{ challenge.timeLimitFormatted }}</div>
+                                    <small class="text-muted">Temps</small>
+                                </div>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('challenge_show', {id: challenge.id}) }}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-play"></i>
+                                    Jouer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Défis complétés -->
+    {% if completed_challenges|length > 0 %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="h4 mb-3">
+                <i class="fas fa-check-circle text-success"></i>
+                Défis complétés
+            </h3>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Défi</th>
+                            <th>Adversaire</th>
+                            <th>Résultat</th>
+                            <th>Score</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for challenge in completed_challenges %}
+                        <tr>
+                            <td>
+                                <strong>{{ challenge.title }}</strong>
+                                {% if challenge.description %}
+                                <br><small class="text-muted">{{ challenge.description }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if challenge.challenger == app.user %}
+                                    {{ challenge.challenged.email }}
+                                {% else %}
+                                    {{ challenge.challenger.email }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% set winner = challenge.winner %}
+                                {% if winner == app.user %}
+                                    <span class="badge bg-success">Victoire</span>
+                                {% elseif winner %}
+                                    <span class="badge bg-danger">Défaite</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Égalité</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if challenge.challengerResult and challenge.challengedResult %}
+                                    {% if challenge.challenger == app.user %}
+                                        {{ challenge.challengerResult.score }} - {{ challenge.challengedResult.score }}
+                                    {% else %}
+                                        {{ challenge.challengedResult.score }} - {{ challenge.challengerResult.score }}
+                                    {% endif %}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <small class="text-muted">{{ challenge.completedAt|date('d/m/Y H:i') }}</small>
+                            </td>
+                            <td>
+                                <a href="{{ path('challenge_show', {id: challenge.id}) }}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                    Voir
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Défis récents -->
+    {% if recent_challenges|length > 0 %}
+    <div class="row">
+        <div class="col-12">
+            <h3 class="h4 mb-3">
+                <i class="fas fa-history text-info"></i>
+                Défis récents
+            </h3>
+            <div class="row">
+                {% for challenge in recent_challenges %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ challenge.title }}</h5>
+                            {% if challenge.description %}
+                            <p class="card-text text-muted small">{{ challenge.description }}</p>
+                            {% endif %}
+                            <div class="row text-center mb-3">
+                                <div class="col-6">
+                                    <div class="text-primary fw-bold">{{ challenge.challenger.email }}</div>
+                                    <small class="text-muted">Challenger</small>
+                                </div>
+                                <div class="col-6">
+                                    <div class="text-info fw-bold">{{ challenge.challenged.email }}</div>
+                                    <small class="text-muted">Challengé</small>
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <a href="{{ path('challenge_show', {id: challenge.id}) }}" class="btn btn-outline-info btn-sm">
+                                    <i class="fas fa-eye"></i>
+                                    Voir le défi
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Statistiques -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">
+                        <i class="fas fa-chart-bar text-primary"></i>
+                        Mes statistiques de défis
+                    </h5>
+                    <div class="row mt-3">
+                        <div class="col-md-3">
+                            <div class="text-primary fw-bold fs-4">{{ app.user.wonChallenges }}</div>
+                            <small class="text-muted">Victoires</small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-success fw-bold fs-4">{{ app.user.totalChallenges }}</div>
+                            <small class="text-muted">Total défis</small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-warning fw-bold fs-4">{{ app.user.winRate|number_format(1) }}%</div>
+                            <small class="text-muted">Taux de victoire</small>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-info fw-bold fs-4">{{ app.user.activeChallenges|length }}</div>
+                            <small class="text-muted">Défis actifs</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

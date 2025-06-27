@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Envoi d'emails - Administration</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2em;
+        }
+        .header {
+            background-color: #9b6ef3;
+            color: white;
+            padding: 1em 2em;
+            border-radius: 15px;
+            margin-bottom: 2em;
+            text-align: center;
+        }
+        .section {
+            background-color: white;
+            padding: 1.5em;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 2em;
+        }
+        .section h3 {
+            color: #9b6ef3;
+            margin-bottom: 1em;
+        }
+        .form-group {
+            margin-bottom: 1em;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+        }
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 0.8em;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        .btn {
+            background-color: #55efc4;
+            color: #2d3436;
+            padding: 0.8em 1.5em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .btn:hover {
+            background-color: #4ecdc4;
+        }
+        .user-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 1em;
+            background-color: #f9f9f9;
+        }
+        .user-item {
+            padding: 0.5em;
+            border-bottom: 1px solid #eee;
+        }
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        .flash {
+            padding: 1em;
+            margin: 1em 0;
+            border-radius: 8px;
+        }
+        .flash-success {
+            background-color: #55efc4;
+            color: #2d3436;
+        }
+        .flash-error {
+            background-color: #ff7675;
+            color: white;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1em;
+            margin-bottom: 1em;
+        }
+        .stat-card {
+            background-color: #f9f9f9;
+            padding: 1em;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #9b6ef3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 Envoi d'emails - Administration</h1>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="flash flash-success">{{ message }}</div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="flash flash-error">{{ message }}</div>
+        {% endfor %}
+
+        <div class="section">
+            <h3>📊 Statistiques des utilisateurs</h3>
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number">{{ usersWithQuizzes|length }}</div>
+                    <div>Ont passé des quiz</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ usersWithoutQuizzes|length }}</div>
+                    <div>N'ont pas passé de quiz</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ usersActive|length }}</div>
+                    <div>Actifs (≤ 1 mois)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ usersInactive|length }}</div>
+                    <div>Inactifs (> 1 mois)</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3>📧 Envoyer un email</h3>
+            <form method="post" action="{{ path('admin_email_send') }}">
+                <div class="form-group">
+                    <label for="type">Type de destinataires :</label>
+                    <select id="type" name="type" required>
+                        <option value="">Choisir un type...</option>
+                        <option value="with_quizzes">Utilisateurs ayant passé des quiz</option>
+                        <option value="without_quizzes">Utilisateurs n'ayant pas passé de quiz</option>
+                        <option value="active">Utilisateurs actifs (≤ 1 mois)</option>
+                        <option value="inactive">Utilisateurs inactifs (> 1 mois)</option>
+                        <option value="category">Utilisateurs ayant passé un quiz spécifique</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="category-select" style="display: none;">
+                    <label for="category">Catégorie :</label>
+                    <select id="category" name="category">
+                        <option value="">Choisir une catégorie...</option>
+                        {% for categorie in categories %}
+                            <option value="{{ categorie.id }}">{{ categorie.nom }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="subject">Sujet :</label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Message :</label>
+                    <textarea id="message" name="message" required placeholder="Votre message..."></textarea>
+                </div>
+
+                <button type="submit" class="btn">Envoyer l'email</button>
+            </form>
+        </div>
+
+        <div class="section">
+            <h3>👥 Liste des utilisateurs</h3>
+            <div class="user-list">
+                {% for user in usersWithQuizzes %}
+                    <div class="user-item">
+                        <strong>{{ user.email }}</strong> - A passé des quiz
+                    </div>
+                {% endfor %}
+                {% for user in usersWithoutQuizzes %}
+                    <div class="user-item">
+                        <strong>{{ user.email }}</strong> - N'a pas passé de quiz
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2em;">
+            <a href="{{ path('admin_users_list') }}" class="btn">👥 Gestion utilisateurs</a>
+            <a href="{{ path('admin_categories_list') }}" class="btn">📚 Gestion catégories</a>
+            <a href="{{ path('admin_stats') }}" class="btn">📊 Statistiques</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('type').addEventListener('change', function() {
+            const categorySelect = document.getElementById('category-select');
+            if (this.value === 'category') {
+                categorySelect.style.display = 'block';
+            } else {
+                categorySelect.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html> 

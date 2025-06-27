@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier la catégorie</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #9b6ef3;
+            color: white;
+            padding: 2em;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 1em;
+        }
+        .form-group {
+            margin-bottom: 1em;
+        }
+        label {
+            display: block;
+            margin-bottom: 0.5em;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 0.8em;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        .btn {
+            background-color: #55efc4;
+            color: #2d3436;
+            padding: 0.8em 1.5em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            width: 100%;
+            margin-top: 1em;
+        }
+        .btn:hover {
+            background-color: #4ecdc4;
+        }
+        .back-link {
+            color: white;
+            text-decoration: underline;
+            text-align: center;
+            display: block;
+            margin-top: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>✏️ Modifier la catégorie</h2>
+        
+        <form method="post">
+            <div class="form-group">
+                <label for="nom">Nom de la catégorie :</label>
+                <input type="text" id="nom" name="nom" value="{{ categorie.nom }}" required>
+            </div>
+            
+            <button type="submit" class="btn">Mettre à jour</button>
+        </form>
+        
+        <a href="{{ path('admin_categories_list') }}" class="back-link">← Retour à la liste</a>
+    </div>
+</body>
+</html> 
